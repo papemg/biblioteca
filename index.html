@@ -1191,6 +1191,30 @@
             overviewBtn.innerHTML = '<span class="nav-icon">🏠</span><span class="nav-text">Overview</span>';
             navMenu.appendChild(overviewBtn);
 
+            // Add dashboard
+            const dashboardBtn = document.createElement('button');
+            dashboardBtn.className = 'nav-item';
+            dashboardBtn.onclick = () => showSection('dashboard');
+            dashboardBtn.innerHTML = '<span class="nav-icon">📊</span><span class="nav-text">Dashboard</span>';
+            navMenu.appendChild(dashboardBtn);
+
+            // Add book sections if they have content
+            if (allBooksData.wanted.length > 0) {
+                const wantedBtn = document.createElement('button');
+                wantedBtn.className = 'nav-item';
+                wantedBtn.onclick = () => showSection('wanted');
+                wantedBtn.innerHTML = '<span class="nav-icon">🛒</span><span class="nav-text">Books I Want</span>';
+                navMenu.appendChild(wantedBtn);
+            }
+
+            if (allBooksData.owned.length > 0) {
+                const ownedBtn = document.createElement('button');
+                ownedBtn.className = 'nav-item';
+                ownedBtn.onclick = () => showSection('owned');
+                ownedBtn.innerHTML = '<span class="nav-icon">✅</span><span class="nav-text">Books I Own</span>';
+                navMenu.appendChild(ownedBtn);
+            }
+
             // Add other sections (non-book sections)
             Object.entries(sections).forEach(([id, section]) => {
                 if (id !== 'overview') {
@@ -1238,6 +1262,25 @@
 
                 mainContent.appendChild(sectionDiv);
             });
+
+            // Create individual book sections
+            if (allBooksData.wanted.length > 0) {
+                const wantedSection = document.createElement('div');
+                wantedSection.className = 'content-section';
+                wantedSection.id = 'wanted';
+                const wantedContent = '## 🛒 Books I Want\n\n' + allBooksData.wanted.join('\n');
+                wantedSection.innerHTML = marked.parse(wantedContent);
+                mainContent.appendChild(wantedSection);
+            }
+
+            if (allBooksData.owned.length > 0) {
+                const ownedSection = document.createElement('div');
+                ownedSection.className = 'content-section';
+                ownedSection.id = 'owned';
+                const ownedContent = '## ✅ Books I Own\n\n' + allBooksData.owned.join('\n');
+                ownedSection.innerHTML = marked.parse(ownedContent);
+                mainContent.appendChild(ownedSection);
+            }
 
             // Process task lists
             processTaskLists();
