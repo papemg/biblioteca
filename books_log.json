@@ -19,5 +19,26 @@
       "owned": 7,
       "total": 14
     }
+  },
+  {
+    "timestamp": "2025-08-19T16:53:21.188780",
+    "date": "2025-08-19",
+    "time": "16:53:21",
+    "commit_message": "↩️ Returned 1 book",
+    "changes": {
+      "books_added_to_wanted": [],
+      "books_removed_from_wanted": [],
+      "books_added_to_owned": [],
+      "books_removed_from_owned": [],
+      "books_bought": [],
+      "books_returned": [
+        "The Great Gatsby by F. Scott Fitzgerald"
+      ]
+    },
+    "totals_after": {
+      "wanted": 8,
+      "owned": 6,
+      "total": 14
+    }
   }
 ]

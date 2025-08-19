@@ -16,7 +16,7 @@ A curated list of books I own and books I want to read.
 - [ ] **The Silent Patient** by *Alex Michaelides*
 - [x] **1984** by *George Orwell*
 - [x] **To Kill a Mockingbird** by *Harper Lee*
-- [x] **The Great Gatsby** by *F. Scott Fitzgerald*
+- [ ] **The Great Gatsby** by *F. Scott Fitzgerald*
 - [x] **Dune** by *Frank Herbert*
 - [x] **The Hitchhiker's Guide to the Galaxy** by *Douglas Adams*
 - [x] **Sapiens** by *Yuval Noah Harari*
