@@ -10,7 +10,7 @@ A curated list of books I own and books I want to read.
 
 - [ ] **The Midnight Library** by *Matt Haig*
 - [ ] **Klara and the Sun** by *Kazuo Ishiguro*
-- [ ] **Project Hail Mary** by *Andy Weir*
+- [ ] **Project Hail Mary**  by *Andy Weir*
 - [ ] **The Seven Husbands of Evelyn Hugo** by *Taylor Jenkins Reid*
 - [ ] **Atomic Habits** by *James Clear*
 - [ ] **The Silent Patient** by *Alex Michaelides*
