@@ -490,31 +490,26 @@
             }
         }
 
-        // Parse markdown and create sections
+        // Parse markdown and automatically create sections based on checkbox status
         function parseMarkdownSections(markdown) {
             const lines = markdown.split('\n');
             const sections = {};
+            let overviewContent = [];
+            let wantedBooks = [];
+            let ownedBooks = [];
+            let otherSections = {};
             let currentSection = null;
             let currentContent = [];
+            let inBookSection = false;
 
             for (const line of lines) {
                 if (line.startsWith('# ')) {
-                    // Main title
-                    if (currentSection) {
-                        sections[currentSection.id] = {
-                            title: currentSection.title,
-                            content: currentContent.join('\n')
-                        };
-                    }
-                    currentSection = {
-                        title: line.substring(2).trim(),
-                        id: 'overview'
-                    };
-                    currentContent = [line];
+                    // Main title - goes to overview
+                    overviewContent.push(line);
                 } else if (line.startsWith('## ')) {
-                    // Section header
-                    if (currentSection) {
-                        sections[currentSection.id] = {
+                    // Save previous section if exists
+                    if (currentSection && !inBookSection) {
+                        otherSections[currentSection.id] = {
                             title: currentSection.title,
                             content: currentContent.join('\n')
                         };
@@ -527,20 +522,71 @@
                         .replace(/-+/g, '-')
                         .replace(/^-|-$/g, '');
                     
-                    currentSection = { title, id };
-                    currentContent = [line];
-                } else {
-                    currentContent.push(line);
+                    // Check if this section contains books (has task list items)
+                    const sectionLines = [];
+                    let i = lines.indexOf(line) + 1;
+                    while (i < lines.length && !lines[i].startsWith('#')) {
+                        sectionLines.push(lines[i]);
+                        i++;
+                    }
+                    
+                    const hasBooks = sectionLines.some(l => l.trim().match(/^- \[([ x])\]/));
+                    
+                    if (hasBooks) {
+                        inBookSection = true;
+                        // This section has books, extract them
+                        sectionLines.forEach(sectionLine => {
+                            if (sectionLine.trim().match(/^- \[x\]/)) {
+                                ownedBooks.push(sectionLine);
+                            } else if (sectionLine.trim().match(/^- \[ \]/)) {
+                                wantedBooks.push(sectionLine);
+                            }
+                        });
+                    } else {
+                        inBookSection = false;
+                        currentSection = { title, id };
+                        currentContent = [line];
+                    }
+                } else if (!inBookSection) {
+                    if (currentSection) {
+                        currentContent.push(line);
+                    } else {
+                        overviewContent.push(line);
+                    }
                 }
             }
 
-            // Add the last section
-            if (currentSection) {
-                sections[currentSection.id] = {
+            // Add the last section if exists
+            if (currentSection && !inBookSection) {
+                otherSections[currentSection.id] = {
                     title: currentSection.title,
                     content: currentContent.join('\n')
                 };
             }
+
+            // Create the final sections structure
+            sections['overview'] = {
+                title: 'Overview',
+                content: overviewContent.join('\n')
+            };
+
+            // Only add book sections if there are books
+            if (wantedBooks.length > 0) {
+                sections['wanted'] = {
+                    title: '🛒 Books I Want',
+                    content: '## 🛒 Books I Want\n\n' + wantedBooks.join('\n')
+                };
+            }
+
+            if (ownedBooks.length > 0) {
+                sections['owned'] = {
+                    title: '✅ Books I Own',
+                    content: '## ✅ Books I Own\n\n' + ownedBooks.join('\n')
+                };
+            }
+
+            // Add other sections
+            Object.assign(sections, otherSections);
 
             return sections;
         }
@@ -562,7 +608,7 @@
             return { wanted, owned, total: wanted + owned };
         }
 
-        // Create navigation menu
+        // Create navigation menu - automatically detect available sections
         function createNavigation(sections) {
             const navMenu = document.getElementById('navMenu');
             navMenu.innerHTML = '';
@@ -574,31 +620,36 @@
             overviewBtn.innerHTML = '<span class="nav-icon">🏠</span>Overview';
             navMenu.appendChild(overviewBtn);
 
-            // Add other sections
+            // Add book sections with specific order and icons
+            const bookSections = [
+                { id: 'wanted', icon: '🛒', priority: 1 },
+                { id: 'owned', icon: '✅', priority: 2 }
+            ];
+
+            bookSections.forEach(({ id, icon }) => {
+                if (sections[id]) {
+                    const button = document.createElement('button');
+                    button.className = 'nav-item';
+                    button.onclick = () => showSection(id);
+                    button.innerHTML = `<span class="nav-icon">${icon}</span>${sections[id].title}`;
+                    navMenu.appendChild(button);
+                }
+            });
+
+            // Add other sections (non-book sections)
             Object.entries(sections).forEach(([id, section]) => {
-                if (id !== 'overview') {
+                if (id !== 'overview' && id !== 'wanted' && id !== 'owned') {
                     const button = document.createElement('button');
                     button.className = 'nav-item';
                     button.onclick = () => showSection(id);
                     
-                    // Check if title already has an emoji at the start
-                    const titleHasEmoji = /^[\u{1F000}-\u{1F6FF}]|^[\u{2600}-\u{26FF}]|^[\u{1F900}-\u{1F9FF}]/u.test(section.title);
+                    // Auto-detect icon based on section title
+                    let icon = '📄';
+                    if (section.title.toLowerCase().includes('note')) icon = '📝';
+                    if (section.title.toLowerCase().includes('review')) icon = '⭐';
+                    if (section.title.toLowerCase().includes('goal')) icon = '🎯';
                     
-                    if (titleHasEmoji) {
-                        // Use the title as-is if it already has an emoji
-                        button.innerHTML = `<span class="nav-icon"></span>${section.title}`;
-                    } else {
-                        // Add appropriate icon if no emoji exists
-                        let icon = '📄';
-                        if (section.title.toLowerCase().includes('want')) icon = '🛒';
-                        if (section.title.toLowerCase().includes('own')) icon = '✅';
-                        if (section.title.toLowerCase().includes('reading')) icon = '📖';
-                        if (section.title.toLowerCase().includes('stats')) icon = '📊';
-                        if (section.title.toLowerCase().includes('notes')) icon = '📝';
-                        
-                        button.innerHTML = `<span class="nav-icon">${icon}</span>${section.title}`;
-                    }
-                    
+                    button.innerHTML = `<span class="nav-icon">${icon}</span>${section.title}`;
                     navMenu.appendChild(button);
                 }
             });
