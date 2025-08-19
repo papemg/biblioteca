@@ -1,309 +1,4 @@
-// Load log data for dashboard
-        async function loadLogData() {
-            try {
-                const response = await fetch('books_log.json');
-                logData = await response.json();
-                return true;
-            } catch (error) {
-                console.log('No log file found or error loading log data');
-                logData = [];
-                return false;
-            }
-        }
-
-        // Create dashboard content
-        function createDashboard() {
-            const dashboardContent = document.getElementById('dashboardContent');
-            
-            if (logData.length === 0) {
-                dashboardContent.innerHTML = `
-                    <div class="no-data">
-                        <h3>📊 No Dashboard Data Yet</h3>
-                        <p>Start using the update script to track your book collection changes!</p>
-                        <p>Run: <code>python update_books.py</code></p>
-                    </div>
-                `;
-                return;
-            }
-
-            // Calculate statistics
-            const stats = calculateStats();
-            
-            dashboardContent.innerHTML = `
-                <div class="dashboard-grid">
-                    ${createStatsCards(stats)}
-                </div>
-                
-                <div class="dashboard-grid">
-                    <div class="dashboard-card">
-                        <h3>📈 Collection Growth</h3>
-                        <div class="chart-container" id="growthChart">
-                            ${createGrowthChart(stats)}
-                        </div>
-                    </div>
-                    
-                    <div class="dashboard-card">
-                        <h3>🏃‍♀️ Recent Activity</h3>
-                        <div id="recentActivity">
-                            ${createRecentActivity()}
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="dashboard-card">
-                    <h3>📚 Monthly Summary</h3>
-                    <div id="monthlySummary">
-                        ${createMonthlySummary()}
-                    </div>
-                </div>
-            `;
-        }
-
-        // Calculate various statistics from log data
-        function calculateStats() {
-            const totalBought = logData.reduce((sum, entry) => 
-                sum + (entry.changes.books_bought?.length || 0), 0);
-            
-            const totalAddedToWanted = logData.reduce((sum, entry) => 
-                sum + (entry.changes.books_added_to_wanted?.length || 0), 0);
-            
-            const totalAddedToOwned = logData.reduce((sum, entry) => 
-                sum + (entry.changes.books_added_to_owned?.length || 0), 0);
-            
-            const totalRemovedFromWanted = logData.reduce((sum, entry) => 
-                sum + (entry.changes.books_removed_from_wanted?.length || 0), 0);
-            
-            const totalRemovedFromOwned = logData.reduce((sum, entry) => 
-                sum + (entry.changes.books_removed_from_owned?.length || 0), 0);
-
-            // Calculate trends
-            const recentEntries = logData.slice(-5);
-            const olderEntries = logData.slice(-10, -5);
-            
-            const recentBought = recentEntries.reduce((sum, entry) => 
-                sum + (entry.changes.books_bought?.length || 0), 0);
-            const olderBought = olderEntries.reduce((sum, entry) => 
-                sum + (entry.changes.books_bought?.length || 0), 0);
-            
-            const buyingTrend = recentBought > olderBought ? 'up' : 
-                               recentBought < olderBought ? 'down' : 'neutral';
-
-            return {
-                totalBought,
-                totalAddedToWanted,
-                totalAddedToOwned,
-                totalRemovedFromWanted,
-                totalRemovedFromOwned,
-                totalEntries: logData.length,
-                buyingTrend,
-                avgBooksPerEntry: logData.length > 0 ? 
-                    ((totalBought + totalAddedToWanted + totalAddedToOwned) / logData.length).toFixed(1) : 0,
-                firstEntryDate: logData.length > 0 ? logData[0].date : null,
-                lastEntryDate: logData.length > 0 ? logData[logData.length - 1].date : null
-            };
-        }
-
-        // Create statistics cards
-        function createStatsCards(stats) {
-            const wishlistProgressWidth = Math.min((stats.totalAddedToWanted / Math.max(stats.totalAddedToWanted + stats.totalRemovedFromWanted, 1)) * 100, 100);
-            
-            return `
-                <div class="dashboard-card">
-                    <h3>📚 Books Bought</h3>
-                    <div class="stat-number">${stats.totalBought}</div>
-                    <div class="stat-label">Total Purchases</div>
-                    <div class="book-trend">
-                        <span class="trend-icon ${stats.buyingTrend === 'up' ? 'trend-up' : 
-                                                  stats.buyingTrend === 'down' ? 'trend-down' : 'trend-neutral'}">
-                            ${stats.buyingTrend === 'up' ? '📈' : 
-                              stats.buyingTrend === 'down' ? '📉' : '➡️'}
-                        </span>
-                        <span>Recent trend</span>
-                    </div>
-                </div>
-                
-                <div class="dashboard-card">
-                    <h3>🛒 Wishlist Activity</h3>
-                    <div class="stat-number">${stats.totalAddedToWanted}</div>
-                    <div class="stat-label">Books Added</div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" data-width="${wishlistProgressWidth}"></div>
-                    </div>
-                    <div class="stat-label">${stats.totalRemovedFromWanted} removed</div>
-                </div>
-                
-                <div class="dashboard-card">
-                    <h3>📖 Collection Growth</h3>
-                    <div class="stat-number">${stats.avgBooksPerEntry}</div>
-                    <div class="stat-label">Avg Books Per Update</div>
-                    <div class="stat-label">${stats.totalEntries} total updates</div>
-                </div>
-            `;
-        }
-
-        // Create growth chart (simple text-based for now)
-        function createGrowthChart(stats) {
-            if (logData.length < 2) {
-                return '<div class="no-data">Need more data for chart</div>';
-            }
-
-            // Group by month and calculate totals
-            const monthlyData = {};
-            
-            logData.forEach(entry => {
-                const month = entry.date.substring(0, 7); // YYYY-MM
-                if (!monthlyData[month]) {
-                    monthlyData[month] = { bought: 0, added: 0, total: entry.totals_after?.total || 0 };
-                }
-                monthlyData[month].bought += entry.changes.books_bought?.length || 0;
-                monthlyData[month].added += (entry.changes.books_added_to_wanted?.length || 0) + 
-                                          (entry.changes.books_added_to_owned?.length || 0);
-                monthlyData[month].total = entry.totals_after?.total || monthlyData[month].total;
-            });
-
-            const months = Object.keys(monthlyData).sort();
-            const maxTotal = Math.max(...Object.values(monthlyData).map(d => d.total));
-            
-            let chartHTML = '<div style="font-size: 0.9em;">';
-            months.slice(-6).forEach(month => {
-                const data = monthlyData[month];
-                const percentage = (data.total / maxTotal) * 100;
-                const monthName = new Date(month + '-01').toLocaleDateString('en', { month: 'short', year: '2-digit' });
-                
-                chartHTML += `
-                    <div style="margin-bottom: 15px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                            <span>${monthName}</span>
-                            <span><strong>${data.total}</strong> books</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" data-width="${percentage}"></div>
-                        </div>
-                        <div style="font-size: 0.8em; color: #6c757d; margin-top: 2px;">
-                            📚 ${data.bought} bought • 🛒 ${data.added} added
-                        </div>
-                    </div>
-                `;
-            });
-            chartHTML += '</div>';
-            
-            return chartHTML;
-        }
-
-        // Create recent activity list
-        function createRecentActivity() {
-            const recentEntries = logData.slice(-10).reverse();
-            
-            if (recentEntries.length === 0) {
-                return '<div class="no-data">No recent activity</div>';
-            }
-
-            let activityHTML = '';
-            recentEntries.forEach(entry => {
-                const changes = entry.changes;
-                const totalChanges = (changes.books_bought?.length || 0) + 
-                                   (changes.books_added_to_wanted?.length || 0) + 
-                                   (changes.books_added_to_owned?.length || 0) + 
-                                   (changes.books_removed_from_wanted?.length || 0) + 
-                                   (changes.books_removed_from_owned?.length || 0);
-
-                let description = '';
-                if (changes.books_bought?.length > 0) {
-                    description = `📚 Bought ${changes.books_bought.length} book${changes.books_bought.length > 1 ? 's' : ''}`;
-                } else if (changes.books_added_to_wanted?.length > 0) {
-                    description = `🛒 Added ${changes.books_added_to_wanted.length} to wishlist`;
-                } else if (changes.books_added_to_owned?.length > 0) {
-                    description = `📖 Added ${changes.books_added_to_owned.length} to collection`;
-                } else if (totalChanges > 0) {
-                    description = `📝 Updated collection`;
-                } else {
-                    description = `📝 ${entry.commit_message}`;
-                }
-
-                const date = new Date(entry.date).toLocaleDateString('en', { 
-                    month: 'short', 
-                    day: 'numeric' 
-                });
-
-                activityHTML += `
-                    <div class="activity-item">
-                        <div class="activity-date">${date}</div>
-                        <div class="activity-description">${description}</div>
-                        <div class="activity-count">${totalChanges}</div>
-                    </div>
-                `;
-            });
-
-            return activityHTML;
-        }
-
-        // Create monthly summary
-        function createMonthlySummary() {
-            if (logData.length === 0) {
-                return '<div class="no-data">No data available</div>';
-            }
-
-            // Group by month
-            const monthlyData = {};
-            
-            logData.forEach(entry => {
-                const month = entry.date.substring(0, 7); // YYYY-MM
-                if (!monthlyData[month]) {
-                    monthlyData[month] = {
-                        bought: 0,
-                        addedToWanted: 0,
-                        addedToOwned: 0,
-                        removedFromWanted: 0,
-                        removedFromOwned: 0,
-                        entries: 0
-                    };
-                }
-                
-                const data = monthlyData[month];
-                data.bought += entry.changes.books_bought?.length || 0;
-                data.addedToWanted += entry.changes.books_added_to_wanted?.length || 0;
-                data.addedToOwned += entry.changes.books_added_to_owned?.length || 0;
-                data.removedFromWanted += entry.changes.books_removed_from_wanted?.length || 0;
-                data.removedFromOwned += entry.changes.books_removed_from_owned?.length || 0;
-                data.entries += 1;
-            });
-
-            const months = Object.keys(monthlyData).sort().reverse().slice(0, 6);
-            
-            let summaryHTML = '<div style="display: grid; gap: 15px;">';
-            
-            months.forEach(month => {
-                const data = monthlyData[month];
-                const monthName = new Date(month + '-01').toLocaleDateString('en', { 
-                    month: 'long', 
-                    year: 'numeric' 
-                });
-                
-                summaryHTML += `
-                    <div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 15px;">
-                        <h4 style="margin: 0 0 10px 0; color: #2c3e50;">${monthName}</h4>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; font-size: 0.9em;">
-                            <div>📚 <strong>${data.bought}</strong> bought</div>
-                            <div>🛒 <strong>${data.addedToWanted}</strong> wanted</div>
-                            <div>📖 <strong>${data.addedToOwned}</strong> added</div>
-                            <div>📝 <strong>${data.entries}</strong> updates</div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            summaryHTML += '</div>';
-            return summaryHTML;
-        }
-
-        // Apply progress bar widths after DOM elements are created
-        function applyProgressBarWidths() {
-            const progressFills = document.querySelectorAll('.progress-fill[data-width]');
-            progressFills.forEach(fill => {
-                const width = fill.getAttribute('data-width');
-                fill.style.width = width + '%';
-            });
-        }<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -317,32 +12,24 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             line-height: 1.6;
             color: #24292e;
             background-color: #f8f9fa;
-            overflow-x: hidden;
-        }
-
-        .app-container {
-            display: flex;
-            min-height: 100vh;
         }
 
         /* Sidebar Styles */
         .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 280px;
+            height: 100vh;
             background: #000000;
             color: white;
-            position: fixed;
-            height: 100vh;
             overflow-y: auto;
             z-index: 1000;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
             transition: transform 0.3s ease;
-            transform: translateX(0);
-            left: 0;
-            top: 0;
         }
 
         .sidebar.collapsed {
@@ -352,32 +39,17 @@
         .sidebar-header {
             padding: 30px 20px;
             text-align: center;
-            border-bottom: 1px solid #333333;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar.collapsed .sidebar-header {
-            padding: 20px 5px;
+            border-bottom: 1px solid #333;
         }
 
         .sidebar-header h1 {
             font-size: 1.5rem;
-            margin-bottom: 8px;
+            margin: 0;
             font-weight: 600;
-            transition: opacity 0.3s ease;
-        }
-
-        .sidebar.collapsed .sidebar-header h1 {
-            opacity: 0;
         }
 
         .nav-menu {
             padding: 20px 0;
-            transition: padding 0.3s ease;
-        }
-
-        .sidebar.collapsed .nav-menu {
-            padding: 10px 0;
         }
 
         .nav-item {
@@ -385,60 +57,33 @@
             padding: 12px 20px;
             color: white;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: background 0.3s ease;
             border: none;
             background: none;
             width: 100%;
             text-align: left;
             cursor: pointer;
             font-size: 16px;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        .sidebar.collapsed .nav-item {
-            padding: 12px 10px;
-            text-align: center;
         }
 
         .nav-item:hover {
-            background: #333333;
+            background: #333;
         }
 
         .nav-item.active {
-            background: #444444;
+            background: #444;
             border-right: 3px solid white;
         }
 
         .nav-icon {
             margin-right: 10px;
             font-size: 1.1em;
-            transition: margin 0.3s ease;
-        }
-
-        .sidebar.collapsed .nav-icon {
-            margin-right: 0;
-        }
-
-        .nav-text {
-            transition: opacity 0.3s ease;
-        }
-
-        .sidebar.collapsed .nav-text {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
         }
 
         .stats-section {
             padding: 20px;
-            border-top: 1px solid #333333;
+            border-top: 1px solid #333;
             margin-top: auto;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar.collapsed .stats-section {
-            padding: 10px 5px;
         }
 
         .stat-item {
@@ -446,48 +91,41 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 0.9rem;
-            transition: opacity 0.3s ease;
-        }
-
-        .sidebar.collapsed .stat-item {
-            opacity: 0;
         }
 
         .stat-value {
             font-weight: 600;
         }
 
-        /* Sidebar toggle button */
+        /* Toggle Button */
         .sidebar-toggle {
             position: fixed;
             top: 20px;
             left: 20px;
             z-index: 1001;
-            background: #000000;
+            background: #000;
             color: white;
             border: none;
             padding: 12px;
             border-radius: 8px;
             font-size: 18px;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
             transition: left 0.3s ease;
         }
 
-        .sidebar-toggle.moved {
+        .sidebar.collapsed + .main-content .sidebar-toggle {
             left: 60px;
         }
 
         /* Main Content */
         .main-content {
-            flex: 1;
             margin-left: 280px;
             padding: 40px;
-            max-width: 100%;
+            min-height: 100vh;
             transition: margin-left 0.3s ease;
         }
 
-        .main-content.sidebar-collapsed {
+        .sidebar.collapsed + .main-content {
             margin-left: 40px;
         }
 
@@ -503,16 +141,10 @@
 
         .content-section.active {
             display: block;
-            animation: fadeIn 0.3s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Search Bar in Main Content */
-        .main-search-container {
+        /* Search Bar */
+        .search-container {
             background: white;
             border-radius: 12px;
             padding: 20px;
@@ -520,7 +152,7 @@
             box-shadow: 0 2px 20px rgba(0,0,0,0.08);
         }
 
-        .main-search-input {
+        .search-input {
             width: 100%;
             padding: 15px 20px;
             border: 2px solid #e9ecef;
@@ -529,29 +161,18 @@
             transition: border-color 0.3s ease;
         }
 
-        .main-search-input:focus {
+        .search-input:focus {
             outline: none;
-            border-color: #000000;
-            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
-        }
-
-        .main-search-input::placeholder {
-            color: #6c757d;
+            border-color: #000;
         }
 
         /* Typography */
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 600;
-            line-height: 1.25;
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-
         h1 {
             font-size: 2.5em;
-            border-bottom: 3px solid #000000;
+            border-bottom: 3px solid #000;
             padding-bottom: 15px;
             margin-bottom: 30px;
+            color: #2c3e50;
         }
 
         h2 {
@@ -563,78 +184,11 @@
         h3 {
             font-size: 1.4em;
             color: #34495e;
-        }
-
-        p {
-            margin-bottom: 16px;
-            color: #555;
-        }
-
-        /* Lists */
-        ul, ol {
             margin-bottom: 20px;
-            padding-left: 0;
         }
 
-        li {
-            list-style: none;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #e9ecef;
-            transition: all 0.3s ease;
-        }
-
-        li:hover {
-            transform: translateX(5px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        /* Task list styling */
-        li.task-list-item {
-            display: flex;
-            align-items: flex-start;
-            position: relative;
-        }
-
-        li.task-list-item.checked {
-            border-left-color: #000000;
-            background: #f8f9fa;
-        }
-
-        li.task-list-item.unchecked {
-            border-left-color: #666666;
-            background: #ffffff;
-        }
-
-        input[type="checkbox"] {
-            margin-right: 15px;
-            margin-top: 2px;
-            transform: scale(1.3);
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .book-info {
-            flex-grow: 1;
-        }
-
-        .book-title {
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 1.1em;
-            margin-bottom: 5px;
-        }
-
-        .book-author {
-            color: #6c757d;
-            font-style: italic;
-            font-size: 0.95em;
-        }
-
-        /* Book sections in overview */
-        .book-sections-container {
+        /* Book Lists */
+        .book-sections {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
@@ -648,21 +202,45 @@
             border: 1px solid #e9ecef;
         }
 
-        .book-section h3 {
-            margin-bottom: 20px;
-            color: #495057;
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .book-list {
+            list-style: none;
+            padding: 0;
         }
 
-        /* Hide items that don't match search */
-        .hidden {
-            display: none !important;
+        .book-item {
+            background: white;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #e9ecef;
+            transition: all 0.3s ease;
         }
 
-        /* Dashboard specific styles */
+        .book-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .book-item.owned {
+            border-left-color: #28a745;
+        }
+
+        .book-item.wanted {
+            border-left-color: #007bff;
+        }
+
+        .book-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .book-author {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Dashboard */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -678,19 +256,10 @@
             border: 1px solid #e9ecef;
         }
 
-        .dashboard-card h3 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-            font-size: 1.2em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         .stat-number {
             font-size: 2.5em;
             font-weight: bold;
-            color: #000000;
+            color: #000;
             margin: 10px 0;
         }
 
@@ -709,33 +278,15 @@
             border-bottom: 1px solid #f8f9fa;
         }
 
-        .activity-item:last-child {
-            border-bottom: none;
-        }
-
         .activity-date {
             font-size: 0.85em;
             color: #6c757d;
         }
 
-        .activity-description {
-            flex-grow: 1;
-            margin: 0 15px;
-            font-size: 0.9em;
-        }
-
-        .activity-count {
-            background: #f8f9fa;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8em;
-            color: #495057;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 300px;
-            margin-top: 20px;
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #6c757d;
         }
 
         .no-data {
@@ -743,131 +294,6 @@
             color: #6c757d;
             font-style: italic;
             padding: 40px;
-        }
-
-        .progress-bar {
-            background: #f8f9fa;
-            border-radius: 4px;
-            height: 8px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            background: #000000;
-            height: 100%;
-            transition: width 0.3s ease;
-        }
-
-        .book-trend {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 10px 0;
-        }
-
-        .trend-icon {
-            font-size: 1.2em;
-        }
-
-        .trend-up {
-            color: #28a745;
-        }
-
-        .trend-down {
-            color: #dc3545;
-        }
-
-        /* No results message */
-        .no-results {
-            text-align: center;
-            padding: 40px;
-            color: #6c757d;
-            font-style: italic;
-        }
-
-        /* Code styling */
-        code {
-            background-color: #f1f3f4;
-            border-radius: 4px;
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            font-size: 0.9em;
-            padding: 2px 6px;
-            color: #e83e8c;
-        }
-
-        pre {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            font-size: 0.9em;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            overflow-x: auto;
-            padding: 20px;
-            border: 1px solid #e9ecef;
-        }
-
-        /* Tables */
-        table {
-            border-collapse: collapse;
-            border-spacing: 0;
-            margin-bottom: 20px;
-            width: 100%;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        table th,
-        table td {
-            border: 1px solid #dee2e6;
-            padding: 12px 15px;
-            text-align: left;
-        }
-
-        table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-            color: #495057;
-        }
-
-        table tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-
-        /* Blockquotes */
-        blockquote {
-            border-left: 4px solid #000000;
-            color: #6a737d;
-            margin-bottom: 20px;
-            padding: 15px 20px;
-            background: #f8f9fa;
-            border-radius: 0 8px 8px 0;
-        }
-
-        /* Loading state */
-        .loading {
-            text-align: center;
-            padding: 60px;
-            color: #6c757d;
-        }
-
-        .loading::after {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #6c757d;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
 
         /* Mobile Responsive */
@@ -880,42 +306,24 @@
                 transform: translateX(0);
             }
 
-            .sidebar.collapsed {
-                transform: translateX(-100%);
-            }
-
             .main-content {
                 margin-left: 0;
                 padding: 80px 20px 20px;
-            }
-
-            .sidebar.collapsed + .main-content {
-                margin-left: 0;
             }
 
             .sidebar-toggle {
                 left: 20px !important;
             }
 
-            h1 {
-                font-size: 2em;
-            }
-
-            h2 {
-                font-size: 1.5em;
+            .book-sections {
+                grid-template-columns: 1fr;
             }
 
             .content-section {
                 padding: 20px;
             }
-
-            .book-sections-container {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
         }
 
-        /* Overlay for mobile */
         .overlay {
             display: none;
             position: fixed;
@@ -931,206 +339,185 @@
             display: block;
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Overlay for mobile -->
-        <div class="overlay" onclick="window.toggleSidebar()"></div>
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay"></div>
 
-        <!-- Sidebar -->
-        <nav class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h1>📚 Biblioteca</h1>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h1>📚 Biblioteca</h1>
+        </div>
+
+        <div class="nav-menu">
+            <button class="nav-item active" onclick="showSection('overview')">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Overview</span>
+            </button>
+            <button class="nav-item" onclick="showSection('dashboard')">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </button>
+            <button class="nav-item" onclick="showSection('wanted')">
+                <span class="nav-icon">🛒</span>
+                <span class="nav-text">Want to Read</span>
+            </button>
+            <button class="nav-item" onclick="showSection('owned')">
+                <span class="nav-icon">✅</span>
+                <span class="nav-text">My Books</span>
+            </button>
+        </div>
+
+        <div class="stats-section">
+            <div class="stat-item">
+                <span>Total Books:</span>
+                <span class="stat-value" id="totalBooks">0</span>
             </div>
-
-            <!-- Add dashboard button to sidebar HTML -->
-            <div class="nav-menu" id="navMenu">
-                <button class="nav-item active" onclick="window.showSection('overview')">
-                    <span class="nav-icon">🏠</span>
-                    <span class="nav-text">Overview</span>
-                </button>
-                <button class="nav-item" onclick="window.showSection('dashboard')">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-text">Dashboard</span>
-                </button>
+            <div class="stat-item">
+                <span>Want to Read:</span>
+                <span class="stat-value" id="wantedBooks">0</span>
             </div>
-
-            <div class="stats-section" id="statsSection">
-                <div class="stat-item">
-                    <span>Total Books:</span>
-                    <span class="stat-value" id="totalBooks">0</span>
-                </div>
-                <div class="stat-item">
-                    <span>Want to Buy:</span>
-                    <span class="stat-value" id="wantedBooks">0</span>
-                </div>
-                <div class="stat-item">
-                    <span>Owned:</span>
-                    <span class="stat-value" id="ownedBooks">0</span>
-                </div>
+            <div class="stat-item">
+                <span>Owned:</span>
+                <span class="stat-value" id="ownedBooks">0</span>
             </div>
-        </nav>
+        </div>
+    </nav>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Sidebar toggle button -->
-            <button class="sidebar-toggle" onclick="window.toggleSidebar()" style="z-index: 1002;">☰</button>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Toggle Button -->
+        <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
+        <!-- Search Bar -->
+        <div class="search-container" id="searchContainer">
+            <input type="text" class="search-input" placeholder="Search your books..." id="searchInput">
+        </div>
+
+        <!-- Overview Section -->
+        <div class="content-section active" id="overview">
+            <h1>📚 My Book Collection</h1>
+            <p><em>Last updated: August 19, 2025</em></p>
             
-            <!-- Test if JavaScript is working -->
-            <script>
-                // Test that the functions are available immediately
-                document.addEventListener('DOMContentLoaded', function() {
-                    console.log('DOM loaded - testing functions:');
-                    console.log('toggleSidebar available:', typeof window.toggleSidebar);
-                    console.log('showSection available:', typeof window.showSection);
-                    
-                    // Test the sidebar element exists
-                    const sidebar = document.getElementById('sidebar');
-                    console.log('Sidebar element found:', !!sidebar);
-                    if (sidebar) {
-                        console.log('Sidebar initial classes:', sidebar.className);
-                    }
-                });
-            </script>
-
-            <!-- Search bar in main content (only visible on overview) -->
-            <div class="main-search-container" id="mainSearchContainer" style="display: none;">
-                <input type="text" class="main-search-input" placeholder="Search your books..." id="mainSearchInput">
-            </div>
-
-            <div class="content-section active" id="overview">
-                <div class="loading">Loading your book collection...</div>
-            </div>
-
-            <div class="content-section" id="dashboard">
-                <h1>📊 Dashboard</h1>
-                <div id="dashboardContent">
-                    <div class="loading">Loading dashboard data...</div>
+            <div class="book-sections">
+                <div class="book-section">
+                    <h3>🛒 Books I Want</h3>
+                    <ul class="book-list" id="wantedList">
+                        <!-- Books will be loaded here -->
+                    </ul>
+                </div>
+                
+                <div class="book-section">
+                    <h3>✅ Books I Own</h3>
+                    <ul class="book-list" id="ownedList">
+                        <!-- Books will be loaded here -->
+                    </ul>
                 </div>
             </div>
-        </main>
-    </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div class="content-section" id="dashboard">
+            <h1>📊 Dashboard</h1>
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>📚 Collection Stats</h3>
+                    <div class="stat-number" id="dashTotalBooks">15</div>
+                    <div class="stat-label">Total Books</div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>🛒 Wishlist</h3>
+                    <div class="stat-number" id="dashWantedBooks">9</div>
+                    <div class="stat-label">Books to Buy</div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>📖 Library</h3>
+                    <div class="stat-number" id="dashOwnedBooks">6</div>
+                    <div class="stat-label">Books Owned</div>
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>🏃‍♀️ Recent Activity</h3>
+                <div id="recentActivity">
+                    <div class="activity-item">
+                        <div class="activity-date">Aug 19</div>
+                        <div>📚 Bought "The Silent Patient"</div>
+                        <div>1</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-date">Aug 19</div>
+                        <div>🛒 Added "Infinite Jest" to wishlist</div>
+                        <div>1</div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-date">Aug 19</div>
+                        <div>↩️ Returned "The Great Gatsby"</div>
+                        <div>1</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Want to Read Section -->
+        <div class="content-section" id="wanted">
+            <h1>🛒 Books I Want to Read</h1>
+            <ul class="book-list" id="wantedDetailList">
+                <!-- Books will be loaded here -->
+            </ul>
+        </div>
+
+        <!-- My Books Section -->
+        <div class="content-section" id="owned">
+            <h1>✅ My Books</h1>
+            <ul class="book-list" id="ownedDetailList">
+                <!-- Books will be loaded here -->
+            </ul>
+        </div>
+    </main>
 
     <script>
-        let markdownContent = '';
-        let sections = {};
-        let allBooks = { wanted: 0, owned: 0, total: 0 };
-        let allBooksData = { wanted: [], owned: [] };
-        let logData = [];
+        // Global variables
+        let allBooks = { wanted: [], owned: [] };
+        
+        // Sample book data (replace with your actual data loading)
+        const sampleBooks = {
+            wanted: [
+                { title: "The Midnight Library", author: "Matt Haig" },
+                { title: "Klara and the Sun", author: "Kazuo Ishiguro" },
+                { title: "Project Hail Mary", author: "Andy Weir" },
+                { title: "Atomic Habits", author: "James Clear" },
+                { title: "The Great Gatsby", author: "F. Scott Fitzgerald" },
+                { title: "The Name of the Wind", author: "Patrick Rothfuss" },
+                { title: "Educated", author: "Tara Westover" },
+                { title: "Infinite Jest", author: "David Foster Wallace" }
+            ],
+            owned: [
+                { title: "The Seven Husbands of Evelyn Hugo", author: "Taylor Jenkins Reid" },
+                { title: "The Silent Patient", author: "Alex Michaelides" },
+                { title: "1984", author: "George Orwell" },
+                { title: "To Kill a Mockingbird", author: "Harper Lee" },
+                { title: "Dune", author: "Frank Herbert" },
+                { title: "The Hitchhiker's Guide to the Galaxy", author: "Douglas Adams" },
+                { title: "Sapiens", author: "Yuval Noah Harari" }
+            ]
+        };
 
-        // Initialize core functions immediately when script loads
-        console.log('JavaScript is loaded and running');
-
-        // Sidebar toggle functionality - IMMEDIATE AVAILABILITY
+        // Toggle sidebar
         function toggleSidebar() {
-            console.log('Toggle sidebar clicked!'); // Debug log
             const sidebar = document.getElementById('sidebar');
-            const overlay = document.querySelector('.overlay');
-            const mainContent = document.querySelector('.main-content');
-            const toggleButton = document.querySelector('.sidebar-toggle');
-            
-            console.log('Current sidebar classes:', sidebar.className); // Debug log
+            const overlay = document.getElementById('overlay');
             
             if (window.innerWidth <= 768) {
-                // Mobile behavior
                 sidebar.classList.toggle('open');
                 overlay.classList.toggle('active');
-                console.log('Mobile mode - toggled open class'); // Debug log
             } else {
-                // Desktop behavior - collapse/expand
                 sidebar.classList.toggle('collapsed');
-                
-                // Also toggle main content and button classes for smoother animation
-                if (mainContent) {
-                    mainContent.classList.toggle('sidebar-collapsed');
-                }
-                if (toggleButton) {
-                    toggleButton.classList.toggle('moved');
-                }
-                
-                console.log('Desktop mode - toggled collapsed class'); // Debug log
-            }
-            
-            console.log('New sidebar classes:', sidebar.className); // Debug log
-        }
-
-        // Show specific section - IMMEDIATE AVAILABILITY
-        function showSection(sectionId) {
-            console.log('Showing section:', sectionId);
-            
-            // Hide all sections
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.classList.remove('active');
-            });
-
-            // Remove active from all nav items
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-
-            // Show selected section
-            const targetSection = document.getElementById(sectionId);
-            if (targetSection) {
-                targetSection.classList.add('active');
-            }
-
-            // Add active to clicked nav item
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
-
-            // Show/hide search bar based on section
-            const searchContainer = document.getElementById('mainSearchContainer');
-            if (searchContainer) {
-                if (sectionId === 'overview') {
-                    searchContainer.style.display = 'block';
-                } else {
-                    searchContainer.style.display = 'none';
-                }
-            }
-
-            // Close mobile sidebar
-            if (window.innerWidth <= 768) {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.querySelector('.overlay');
-                if (sidebar) sidebar.classList.remove('open');
-                if (overlay) overlay.classList.remove('active');
             }
         }
-
-        // Make functions globally available immediately
-        window.toggleSidebar = toggleSidebar;
-        window.showSection = showSection;
-
-        console.log('Core functions initialized:');
-        console.log('toggleSidebar function available:', typeof window.toggleSidebar);
-        console.log('showSection function available:', typeof window.showSection);
-
-        // Sidebar toggle functionality
-        function toggleSidebar() {
-            console.log('Toggle sidebar clicked!'); // Debug log
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.querySelector('.overlay');
-            
-            console.log('Current sidebar classes:', sidebar.className); // Debug log
-            
-            if (window.innerWidth <= 768) {
-                // Mobile behavior
-                sidebar.classList.toggle('open');
-                overlay.classList.toggle('active');
-                console.log('Mobile mode - toggled open class'); // Debug log
-            } else {
-                // Desktop behavior - collapse/expand
-                sidebar.classList.toggle('collapsed');
-                console.log('Desktop mode - toggled collapsed class'); // Debug log
-            }
-            
-            console.log('New sidebar classes:', sidebar.className); // Debug log
-        }
-
-        // Make toggleSidebar globally available
-        window.toggleSidebar = toggleSidebar;
 
         // Show specific section
         function showSection(sectionId) {
@@ -1145,18 +532,13 @@
             });
 
             // Show selected section
-            const targetSection = document.getElementById(sectionId);
-            if (targetSection) {
-                targetSection.classList.add('active');
-            }
+            document.getElementById(sectionId).classList.add('active');
 
             // Add active to clicked nav item
-            if (event && event.target) {
-                event.target.classList.add('active');
-            }
+            event.target.classList.add('active');
 
-            // Show/hide search bar based on section
-            const searchContainer = document.getElementById('mainSearchContainer');
+            // Show/hide search bar
+            const searchContainer = document.getElementById('searchContainer');
             if (sectionId === 'overview') {
                 searchContainer.style.display = 'block';
             } else {
@@ -1166,394 +548,96 @@
             // Close mobile sidebar
             if (window.innerWidth <= 768) {
                 const sidebar = document.getElementById('sidebar');
-                const overlay = document.querySelector('.overlay');
+                const overlay = document.getElementById('overlay');
                 sidebar.classList.remove('open');
                 overlay.classList.remove('active');
             }
         }
 
-        // Make showSection globally available
-        window.showSection = showSection;
+        // Create book item HTML
+        function createBookItem(book, type) {
+            return `
+                <li class="book-item ${type}">
+                    <div class="book-title">${book.title}</div>
+                    <div class="book-author">by ${book.author}</div>
+                </li>
+            `;
+        }
 
-        // Parse markdown and create overview with both sections
-        function parseMarkdownSections(markdown) {
-            const lines = markdown.split('\n');
-            const sections = {};
-            let overviewContent = [];
-            let wantedBooks = [];
-            let ownedBooks = [];
-            let otherSections = {};
-            let currentSection = null;
-            let currentContent = [];
-            let inBookSection = false;
-
-            for (const line of lines) {
-                if (line.startsWith('# ')) {
-                    // Main title - goes to overview
-                    overviewContent.push(line);
-                } else if (line.startsWith('## ')) {
-                    // Save previous section if exists
-                    if (currentSection && !inBookSection) {
-                        otherSections[currentSection.id] = {
-                            title: currentSection.title,
-                            content: currentContent.join('\n')
-                        };
-                    }
-                    
-                    const title = line.substring(3).trim();
-                    const id = title.toLowerCase()
-                        .replace(/[^\w\s]/g, '')
-                        .replace(/\s+/g, '-')
-                        .replace(/-+/g, '-')
-                        .replace(/^-|-$/g, '');
-                    
-                    // Check if this section contains books (has task list items)
-                    const sectionLines = [];
-                    let i = lines.indexOf(line) + 1;
-                    while (i < lines.length && !lines[i].startsWith('#')) {
-                        sectionLines.push(lines[i]);
-                        i++;
-                    }
-                    
-                    const hasBooks = sectionLines.some(l => l.trim().match(/^- \[([ x])\]/));
-                    
-                    if (hasBooks) {
-                        inBookSection = true;
-                        // This section has books, extract them
-                        sectionLines.forEach(sectionLine => {
-                            if (sectionLine.trim().match(/^- \[x\]/)) {
-                                ownedBooks.push(sectionLine);
-                            } else if (sectionLine.trim().match(/^- \[ \]/)) {
-                                wantedBooks.push(sectionLine);
-                            }
-                        });
-                    } else {
-                        inBookSection = false;
-                        currentSection = { title, id };
-                        currentContent = [line];
-                    }
-                } else if (!inBookSection) {
-                    if (currentSection) {
-                        currentContent.push(line);
-                    } else {
-                        overviewContent.push(line);
-                    }
-                }
-            }
-
-            // Add the last section if exists
-            if (currentSection && !inBookSection) {
-                otherSections[currentSection.id] = {
-                    title: currentSection.title,
-                    content: currentContent.join('\n')
-                };
-            }
-
-            // Store books data for search
-            allBooksData.wanted = wantedBooks;
-            allBooksData.owned = ownedBooks;
-
-            // Create overview content with both book sections
-            let overviewHTML = overviewContent.join('\n');
-            overviewHTML += '\n\n<div class="book-sections-container">';
+        // Load books into lists
+        function loadBooks() {
+            allBooks = sampleBooks;
             
-            if (wantedBooks.length > 0) {
-                overviewHTML += '<div class="book-section" id="wantedSection">';
-                overviewHTML += '<h3>🛒 Books I Want</h3>';
-                overviewHTML += wantedBooks.join('\n');
-                overviewHTML += '</div>';
-            }
-
-            if (ownedBooks.length > 0) {
-                overviewHTML += '<div class="book-section" id="ownedSection">';
-                overviewHTML += '<h3>✅ Books I Own</h3>';
-                overviewHTML += ownedBooks.join('\n');
-                overviewHTML += '</div>';
-            }
+            // Update overview lists
+            document.getElementById('wantedList').innerHTML = 
+                allBooks.wanted.map(book => createBookItem(book, 'wanted')).join('');
+            document.getElementById('ownedList').innerHTML = 
+                allBooks.owned.map(book => createBookItem(book, 'owned')).join('');
             
-            overviewHTML += '</div>';
-
-            // Create the final sections structure
-            sections['overview'] = {
-                title: 'Overview',
-                content: overviewHTML
-            };
-
-            // Add other sections (if any)
-            Object.assign(sections, otherSections);
-
-            return sections;
-        }
-
-        // Count books in content
-        function countBooks(content) {
-            const lines = content.split('\n');
-            let wanted = 0;
-            let owned = 0;
-
-            for (const line of lines) {
-                if (line.trim().startsWith('- [ ]')) {
-                    wanted++;
-                } else if (line.trim().startsWith('- [x]')) {
-                    owned++;
-                }
-            }
-
-            return { wanted, owned, total: wanted + owned };
-        }
-
-        // Create navigation menu
-        function createNavigation(sections) {
-            const navMenu = document.getElementById('navMenu');
-            navMenu.innerHTML = '';
-
-            // Add overview first
-            const overviewBtn = document.createElement('button');
-            overviewBtn.className = 'nav-item active';
-            overviewBtn.onclick = () => window.showSection('overview');
-            overviewBtn.innerHTML = '<span class="nav-icon">🏠</span><span class="nav-text">Overview</span>';
-            navMenu.appendChild(overviewBtn);
-
-            // Add dashboard
-            const dashboardBtn = document.createElement('button');
-            dashboardBtn.className = 'nav-item';
-            dashboardBtn.onclick = () => window.showSection('dashboard');
-            dashboardBtn.innerHTML = '<span class="nav-icon">📊</span><span class="nav-text">Dashboard</span>';
-            navMenu.appendChild(dashboardBtn);
-
-            // Add book sections if they have content
-            if (allBooksData.wanted.length > 0) {
-                const wantedBtn = document.createElement('button');
-                wantedBtn.className = 'nav-item';
-                wantedBtn.onclick = () => window.showSection('wanted');
-                wantedBtn.innerHTML = '<span class="nav-icon">🛒</span><span class="nav-text">Books I Want</span>';
-                navMenu.appendChild(wantedBtn);
-            }
-
-            if (allBooksData.owned.length > 0) {
-                const ownedBtn = document.createElement('button');
-                ownedBtn.className = 'nav-item';
-                ownedBtn.onclick = () => window.showSection('owned');
-                ownedBtn.innerHTML = '<span class="nav-icon">✅</span><span class="nav-text">Books I Own</span>';
-                navMenu.appendChild(ownedBtn);
-            }
-
-            // Add other sections (non-book sections)
-            Object.entries(sections).forEach(([id, section]) => {
-                if (id !== 'overview') {
-                    const button = document.createElement('button');
-                    button.className = 'nav-item';
-                    button.onclick = () => window.showSection(id);
-                    
-                    // Auto-detect icon based on section title
-                    let icon = '📄';
-                    if (section.title.toLowerCase().includes('note')) icon = '📝';
-                    if (section.title.toLowerCase().includes('review')) icon = '⭐';
-                    if (section.title.toLowerCase().includes('goal')) icon = '🎯';
-                    
-                    button.innerHTML = `<span class="nav-icon">${icon}</span><span class="nav-text">${section.title}</span>`;
-                    navMenu.appendChild(button);
-                }
-            });
-        }
-
-        // Create content sections
-        function createContentSections(sections) {
-            const mainContent = document.querySelector('.main-content');
+            // Update detail lists
+            document.getElementById('wantedDetailList').innerHTML = 
+                allBooks.wanted.map(book => createBookItem(book, 'wanted')).join('');
+            document.getElementById('ownedDetailList').innerHTML = 
+                allBooks.owned.map(book => createBookItem(book, 'owned')).join('');
             
-            // Clear existing content sections
-            document.querySelectorAll('.content-section').forEach(section => section.remove());
-
-            Object.entries(sections).forEach(([id, section]) => {
-                const sectionDiv = document.createElement('div');
-                sectionDiv.className = 'content-section';
-                sectionDiv.id = id;
-                
-                if (id === 'overview') {
-                    sectionDiv.classList.add('active');
-                }
-
-                // Configure marked options
-                marked.setOptions({
-                    breaks: true,
-                    gfm: true
-                });
-
-                // Render markdown to HTML
-                const html = marked.parse(section.content);
-                sectionDiv.innerHTML = html;
-
-                mainContent.appendChild(sectionDiv);
-            });
-
-            // Create individual book sections
-            if (allBooksData.wanted.length > 0) {
-                const wantedSection = document.createElement('div');
-                wantedSection.className = 'content-section';
-                wantedSection.id = 'wanted';
-                const wantedContent = '## 🛒 Books I Want\n\n' + allBooksData.wanted.join('\n');
-                wantedSection.innerHTML = marked.parse(wantedContent);
-                mainContent.appendChild(wantedSection);
-            }
-
-            if (allBooksData.owned.length > 0) {
-                const ownedSection = document.createElement('div');
-                ownedSection.className = 'content-section';
-                ownedSection.id = 'owned';
-                const ownedContent = '## ✅ Books I Own\n\n' + allBooksData.owned.join('\n');
-                ownedSection.innerHTML = marked.parse(ownedContent);
-                mainContent.appendChild(ownedSection);
-            }
-
-            // Process task lists
-            processTaskLists();
-        }
-
-        // Process task lists for better styling
-        function processTaskLists() {
-            const listItems = document.querySelectorAll('li');
-            listItems.forEach(item => {
-                const checkbox = item.querySelector('input[type="checkbox"]');
-                if (checkbox) {
-                    item.classList.add('task-list-item');
-                    item.classList.add(checkbox.checked ? 'checked' : 'unchecked');
-                    
-                    // Disable checkboxes since this is a static site
-                    checkbox.disabled = true;
-
-                    // Parse book title and author
-                    const textContent = item.textContent;
-                    const match = textContent.match(/\*\*(.*?)\*\* by \*(.*?)\*/);
-                    if (match) {
-                        const [, title, author] = match;
-                        const bookInfo = document.createElement('div');
-                        bookInfo.className = 'book-info';
-                        bookInfo.innerHTML = `
-                            <div class="book-title">${title}</div>
-                            <div class="book-author">by ${author}</div>
-                        `;
-                        
-                        // Replace the text content but keep the checkbox
-                        item.innerHTML = '';
-                        item.appendChild(checkbox);
-                        item.appendChild(bookInfo);
-                    }
-                }
-            });
+            // Update stats
+            updateStats();
         }
 
         // Update statistics
-        function updateStats(sections) {
-            let totalWanted = 0;
-            let totalOwned = 0;
-
-            Object.values(sections).forEach(section => {
-                const counts = countBooks(section.content);
-                totalWanted += counts.wanted;
-                totalOwned += counts.owned;
-            });
-
-            document.getElementById('wantedBooks').textContent = totalWanted;
-            document.getElementById('ownedBooks').textContent = totalOwned;
-            document.getElementById('totalBooks').textContent = totalWanted + totalOwned;
+        function updateStats() {
+            const wantedCount = allBooks.wanted.length;
+            const ownedCount = allBooks.owned.length;
+            const totalCount = wantedCount + ownedCount;
+            
+            // Update sidebar stats
+            document.getElementById('totalBooks').textContent = totalCount;
+            document.getElementById('wantedBooks').textContent = wantedCount;
+            document.getElementById('ownedBooks').textContent = ownedCount;
+            
+            // Update dashboard stats
+            document.getElementById('dashTotalBooks').textContent = totalCount;
+            document.getElementById('dashWantedBooks').textContent = wantedCount;
+            document.getElementById('dashOwnedBooks').textContent = ownedCount;
         }
 
-        // Search functionality for overview
-        function setupMainSearch() {
-            const searchInput = document.getElementById('mainSearchInput');
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
             searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase();
-                
-                // Search in both wanted and owned sections
-                const wantedSection = document.getElementById('wantedSection');
-                const ownedSection = document.getElementById('ownedSection');
-                
-                if (wantedSection) filterBooksInSection(wantedSection, query);
-                if (ownedSection) filterBooksInSection(ownedSection, query);
+                filterBooks(query);
             });
         }
 
-        // Filter books in a specific section
-        function filterBooksInSection(section, query) {
-            const bookItems = section.querySelectorAll('.task-list-item');
-            let visibleCount = 0;
-
+        // Filter books based on search
+        function filterBooks(query) {
+            const bookItems = document.querySelectorAll('.book-item');
+            
             bookItems.forEach(item => {
-                const title = item.querySelector('.book-title')?.textContent.toLowerCase() || '';
-                const author = item.querySelector('.book-author')?.textContent.toLowerCase() || '';
+                const title = item.querySelector('.book-title').textContent.toLowerCase();
+                const author = item.querySelector('.book-author').textContent.toLowerCase();
                 
                 if (query === '' || title.includes(query) || author.includes(query)) {
-                    item.classList.remove('hidden');
-                    visibleCount++;
+                    item.style.display = 'block';
                 } else {
-                    item.classList.add('hidden');
+                    item.style.display = 'none';
                 }
             });
-
-            // Show/hide no results message
-            let noResultsMsg = section.querySelector('.no-results');
-            if (visibleCount === 0 && query !== '') {
-                if (!noResultsMsg) {
-                    noResultsMsg = document.createElement('div');
-                    noResultsMsg.className = 'no-results';
-                    noResultsMsg.textContent = 'No books found matching your search.';
-                    section.appendChild(noResultsMsg);
-                }
-            } else if (noResultsMsg) {
-                noResultsMsg.remove();
-            }
         }
 
-        // Load and render markdown
-        async function loadMarkdown() {
-            try {
-                const response = await fetch('books.md');
-                const markdown = await response.text();
-                
-                const sections = parseMarkdownSections(markdown);
-                createNavigation(sections);
-                createContentSections(sections);
-                updateStats(sections);
-                setupMainSearch();
-                
-                // Show search container for overview
-                document.getElementById('mainSearchContainer').style.display = 'block';
-                
-                // Load dashboard data
-                await loadLogData();
-                createDashboard();
-                
-                // Apply progress bar widths after DOM is created
-                applyProgressBarWidths();
-                
-            } catch (error) {
-                document.querySelector('.main-content').innerHTML = `
-                    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-                    <div class="content-section active">
-                        <h1>📚 My Book Collection</h1>
-                        <p>Could not load books.md file. Make sure it exists in the same directory as this HTML file.</p>
-                        <p>Create a <code>books.md</code> file to get started!</p>
-                    </div>
-                `;
-            }
-        }
+        // Close mobile menu when clicking overlay
+        document.getElementById('overlay').addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+        });
 
         // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', loadMarkdown);
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', (e) => {
-            const sidebar = document.getElementById('sidebar');
-            const toggleBtn = document.querySelector('.sidebar-toggle');
-            
-            if (window.innerWidth <= 768 && 
-                !sidebar.contains(e.target) && 
-                !toggleBtn.contains(e.target) && 
-                sidebar.classList.contains('open')) {
-                const overlay = document.querySelector('.overlay');
-                sidebar.classList.remove('open');
-                overlay.classList.remove('active');
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBooks();
+            setupSearch();
         });
     </script>
 </body>
