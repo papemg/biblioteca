@@ -581,15 +581,24 @@
                     button.className = 'nav-item';
                     button.onclick = () => showSection(id);
                     
-                    // Add appropriate icon
-                    let icon = '📄';
-                    if (section.title.toLowerCase().includes('want')) icon = '🛒';
-                    if (section.title.toLowerCase().includes('own')) icon = '✅';
-                    if (section.title.toLowerCase().includes('reading')) icon = '📖';
-                    if (section.title.toLowerCase().includes('stats')) icon = '📊';
-                    if (section.title.toLowerCase().includes('notes')) icon = '📝';
+                    // Check if title already has an emoji at the start
+                    const titleHasEmoji = /^[\u{1F000}-\u{1F6FF}]|^[\u{2600}-\u{26FF}]|^[\u{1F900}-\u{1F9FF}]/u.test(section.title);
                     
-                    button.innerHTML = `<span class="nav-icon">${icon}</span>${section.title}`;
+                    if (titleHasEmoji) {
+                        // Use the title as-is if it already has an emoji
+                        button.innerHTML = `<span class="nav-icon"></span>${section.title}`;
+                    } else {
+                        // Add appropriate icon if no emoji exists
+                        let icon = '📄';
+                        if (section.title.toLowerCase().includes('want')) icon = '🛒';
+                        if (section.title.toLowerCase().includes('own')) icon = '✅';
+                        if (section.title.toLowerCase().includes('reading')) icon = '📖';
+                        if (section.title.toLowerCase().includes('stats')) icon = '📊';
+                        if (section.title.toLowerCase().includes('notes')) icon = '📝';
+                        
+                        button.innerHTML = `<span class="nav-icon">${icon}</span>${section.title}`;
+                    }
+                    
                     navMenu.appendChild(button);
                 }
             });
