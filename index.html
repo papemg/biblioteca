@@ -340,11 +340,11 @@
             z-index: 1000;
             box-shadow: 2px 0 10px rgba(0,0,0,0.3);
             transition: transform 0.3s ease;
+            transform: translateX(0);
         }
 
         .sidebar.collapsed {
             transform: translateX(-240px);
-            width: 40px;
         }
 
         .sidebar-header {
@@ -973,7 +973,14 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Sidebar toggle button -->
-            <button class="sidebar-toggle" onclick="window.toggleSidebar()">☰</button>
+            <button class="sidebar-toggle" onclick="window.toggleSidebar()" style="z-index: 1002;">☰</button>
+            
+            <!-- Test if JavaScript is working -->
+            <script>
+                console.log('JavaScript is loaded and running');
+                // Test function availability
+                console.log('toggleSidebar function available:', typeof window.toggleSidebar);
+            </script>
 
             <!-- Search bar in main content (only visible on overview) -->
             <div class="main-search-container" id="mainSearchContainer" style="display: none;">
@@ -1002,17 +1009,24 @@
 
         // Sidebar toggle functionality
         function toggleSidebar() {
+            console.log('Toggle sidebar clicked!'); // Debug log
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.overlay');
+            
+            console.log('Current sidebar classes:', sidebar.className); // Debug log
             
             if (window.innerWidth <= 768) {
                 // Mobile behavior
                 sidebar.classList.toggle('open');
                 overlay.classList.toggle('active');
+                console.log('Mobile mode - toggled open class'); // Debug log
             } else {
                 // Desktop behavior - collapse/expand
                 sidebar.classList.toggle('collapsed');
+                console.log('Desktop mode - toggled collapsed class'); // Debug log
             }
+            
+            console.log('New sidebar classes:', sidebar.className); // Debug log
         }
 
         // Make toggleSidebar globally available
