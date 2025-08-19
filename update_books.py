@@ -60,7 +60,11 @@ class BookTracker:
                 print(result.stdout.strip())
             return result.stdout if capture_output else True
         except subprocess.CalledProcessError as e:
-            self.log(f"❌ Error: {e.stderr.strip() if e.stderr else str(e)}", Colors.RED)
+            error_msg = e.stderr.strip() if e.stderr else str(e)
+            if error_msg:
+                self.log(f"❌ Error: {error_msg}", Colors.RED)
+            else:
+                self.log(f"❌ Command failed: {command}", Colors.RED)
             return None
 
     def parse_books_from_markdown(self, content: str) -> Dict[str, Set[str]]:
@@ -347,6 +351,7 @@ Options:
   --help, -h     Show this help message
   --log          Show recent log entries
   --stats        Show collection statistics
+  --debug        Show git status and file information for troubleshooting
 """
     print(help_text)
 
@@ -439,6 +444,18 @@ def main():
         show_stats(tracker)
         return
     
+    # Check for debug flag
+    if '--debug' in sys.argv:
+        tracker.log("🔍 Debug mode - showing current git status:", Colors.CYAN)
+        tracker.run_command("git status", None, capture_output=False)
+        tracker.log("\n📁 Current directory contents:", Colors.CYAN)
+        tracker.run_command("ls -la", None, capture_output=False)
+        if os.path.exists(tracker.log_file):
+            tracker.log(f"\n📝 Log file exists: {tracker.log_file}", Colors.GREEN)
+        else:
+            tracker.log(f"\n📝 Log file does not exist: {tracker.log_file}", Colors.YELLOW)
+        return
+    
     tracker.log(f"{Colors.BOLD}📚 Enhanced Book List Update Script{Colors.RESET}\n")
     
     # Check prerequisites
@@ -495,9 +512,19 @@ def main():
     
     # Execute each step
     for command, description in steps:
-        if not tracker.run_command(command, description):
-            tracker.log("\n❌ Update failed. Please check the error above.", Colors.RED)
-            sys.exit(1)
+        result = tracker.run_command(command, description)
+        if result is None:
+            # If it's the log file addition that failed, try without it
+            if "books_log.json" in command:
+                tracker.log("⚠️  Could not add log file, continuing without it...", Colors.YELLOW)
+                continue
+            else:
+                tracker.log("\n❌ Update failed. Please check the error above.", Colors.RED)
+                
+                # Show git status for debugging
+                tracker.log("\n🔍 Current git status:", Colors.CYAN)
+                tracker.run_command("git status", None, capture_output=False)
+                sys.exit(1)
     
     tracker.log("\n✅ Book list updated successfully!", Colors.GREEN)
     tracker.log("🌐 Your changes should be live on GitHub Pages in a few minutes.", Colors.YELLOW)
@@ -508,3 +535,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    

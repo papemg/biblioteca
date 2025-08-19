@@ -934,7 +934,7 @@
 <body>
     <div class="app-container">
         <!-- Overlay for mobile -->
-        <div class="overlay" onclick="toggleSidebar()"></div>
+        <div class="overlay" onclick="window.toggleSidebar()"></div>
 
         <!-- Sidebar -->
         <nav class="sidebar" id="sidebar">
@@ -942,12 +942,13 @@
                 <h1>📚 Biblioteca</h1>
             </div>
 
+            <!-- Add dashboard button to sidebar HTML -->
             <div class="nav-menu" id="navMenu">
-                <button class="nav-item active" onclick="showSection('overview')">
+                <button class="nav-item active" onclick="window.showSection('overview')">
                     <span class="nav-icon">🏠</span>
                     <span class="nav-text">Overview</span>
                 </button>
-                <button class="nav-item" onclick="showSection('dashboard')">
+                <button class="nav-item" onclick="window.showSection('dashboard')">
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Dashboard</span>
                 </button>
@@ -972,7 +973,7 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Sidebar toggle button -->
-            <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+            <button class="sidebar-toggle" onclick="window.toggleSidebar()">☰</button>
 
             <!-- Search bar in main content (only visible on overview) -->
             <div class="main-search-container" id="mainSearchContainer" style="display: none;">
@@ -1014,6 +1015,9 @@
             }
         }
 
+        // Make toggleSidebar globally available
+        window.toggleSidebar = toggleSidebar;
+
         // Show specific section
         function showSection(sectionId) {
             // Hide all sections
@@ -1033,7 +1037,9 @@
             }
 
             // Add active to clicked nav item
-            event.target.classList.add('active');
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
 
             // Show/hide search bar based on section
             const searchContainer = document.getElementById('mainSearchContainer');
@@ -1051,6 +1057,9 @@
                 overlay.classList.remove('active');
             }
         }
+
+        // Make showSection globally available
+        window.showSection = showSection;
 
         // Parse markdown and create overview with both sections
         function parseMarkdownSections(markdown) {
@@ -1187,14 +1196,14 @@
             // Add overview first
             const overviewBtn = document.createElement('button');
             overviewBtn.className = 'nav-item active';
-            overviewBtn.onclick = () => showSection('overview');
+            overviewBtn.onclick = () => window.showSection('overview');
             overviewBtn.innerHTML = '<span class="nav-icon">🏠</span><span class="nav-text">Overview</span>';
             navMenu.appendChild(overviewBtn);
 
             // Add dashboard
             const dashboardBtn = document.createElement('button');
             dashboardBtn.className = 'nav-item';
-            dashboardBtn.onclick = () => showSection('dashboard');
+            dashboardBtn.onclick = () => window.showSection('dashboard');
             dashboardBtn.innerHTML = '<span class="nav-icon">📊</span><span class="nav-text">Dashboard</span>';
             navMenu.appendChild(dashboardBtn);
 
@@ -1202,7 +1211,7 @@
             if (allBooksData.wanted.length > 0) {
                 const wantedBtn = document.createElement('button');
                 wantedBtn.className = 'nav-item';
-                wantedBtn.onclick = () => showSection('wanted');
+                wantedBtn.onclick = () => window.showSection('wanted');
                 wantedBtn.innerHTML = '<span class="nav-icon">🛒</span><span class="nav-text">Books I Want</span>';
                 navMenu.appendChild(wantedBtn);
             }
@@ -1210,7 +1219,7 @@
             if (allBooksData.owned.length > 0) {
                 const ownedBtn = document.createElement('button');
                 ownedBtn.className = 'nav-item';
-                ownedBtn.onclick = () => showSection('owned');
+                ownedBtn.onclick = () => window.showSection('owned');
                 ownedBtn.innerHTML = '<span class="nav-icon">✅</span><span class="nav-text">Books I Own</span>';
                 navMenu.appendChild(ownedBtn);
             }
@@ -1220,7 +1229,7 @@
                 if (id !== 'overview') {
                     const button = document.createElement('button');
                     button.className = 'nav-item';
-                    button.onclick = () => showSection(id);
+                    button.onclick = () => window.showSection(id);
                     
                     // Auto-detect icon based on section title
                     let icon = '📄';
