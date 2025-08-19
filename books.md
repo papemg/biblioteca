@@ -22,6 +22,7 @@ A curated list of books I own and books I want to read.
 - [x] **Sapiens** by *Yuval Noah Harari*
 - [ ] **The Name of the Wind** by *Patrick Rothfuss*
 - [ ] **Educated** by *Tara Westover*
+- [ ] **infinite jest** by *DFW*
 
 
 ---
