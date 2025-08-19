@@ -977,9 +977,19 @@
             
             <!-- Test if JavaScript is working -->
             <script>
-                console.log('JavaScript is loaded and running');
-                // Test function availability
-                console.log('toggleSidebar function available:', typeof window.toggleSidebar);
+                // Test that the functions are available immediately
+                document.addEventListener('DOMContentLoaded', function() {
+                    console.log('DOM loaded - testing functions:');
+                    console.log('toggleSidebar available:', typeof window.toggleSidebar);
+                    console.log('showSection available:', typeof window.showSection);
+                    
+                    // Test the sidebar element exists
+                    const sidebar = document.getElementById('sidebar');
+                    console.log('Sidebar element found:', !!sidebar);
+                    if (sidebar) {
+                        console.log('Sidebar initial classes:', sidebar.className);
+                    }
+                });
             </script>
 
             <!-- Search bar in main content (only visible on overview) -->
@@ -1006,6 +1016,83 @@
         let allBooks = { wanted: 0, owned: 0, total: 0 };
         let allBooksData = { wanted: [], owned: [] };
         let logData = [];
+
+        // Initialize core functions immediately when script loads
+        console.log('JavaScript is loaded and running');
+
+        // Sidebar toggle functionality - IMMEDIATE AVAILABILITY
+        function toggleSidebar() {
+            console.log('Toggle sidebar clicked!'); // Debug log
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.overlay');
+            
+            console.log('Current sidebar classes:', sidebar.className); // Debug log
+            
+            if (window.innerWidth <= 768) {
+                // Mobile behavior
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+                console.log('Mobile mode - toggled open class'); // Debug log
+            } else {
+                // Desktop behavior - collapse/expand
+                sidebar.classList.toggle('collapsed');
+                console.log('Desktop mode - toggled collapsed class'); // Debug log
+            }
+            
+            console.log('New sidebar classes:', sidebar.className); // Debug log
+        }
+
+        // Show specific section - IMMEDIATE AVAILABILITY
+        function showSection(sectionId) {
+            console.log('Showing section:', sectionId);
+            
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // Add active to clicked nav item
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+
+            // Show/hide search bar based on section
+            const searchContainer = document.getElementById('mainSearchContainer');
+            if (searchContainer) {
+                if (sectionId === 'overview') {
+                    searchContainer.style.display = 'block';
+                } else {
+                    searchContainer.style.display = 'none';
+                }
+            }
+
+            // Close mobile sidebar
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.querySelector('.overlay');
+                if (sidebar) sidebar.classList.remove('open');
+                if (overlay) overlay.classList.remove('active');
+            }
+        }
+
+        // Make functions globally available immediately
+        window.toggleSidebar = toggleSidebar;
+        window.showSection = showSection;
+
+        console.log('Core functions initialized:');
+        console.log('toggleSidebar function available:', typeof window.toggleSidebar);
+        console.log('showSection function available:', typeof window.showSection);
 
         // Sidebar toggle functionality
         function toggleSidebar() {
