@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Book Collection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            color: #24292e;
+            background-color: #ffffff;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Headers */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            line-height: 1.25;
+            margin-top: 24px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 2em;
+            border-bottom: 1px solid #eaecef;
+            padding-bottom: 0.3em;
+            margin-top: 0;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            border-bottom: 1px solid #eaecef;
+            padding-bottom: 0.3em;
+        }
+
+        h3 {
+            font-size: 1.25em;
+        }
+
+        /* Paragraphs and text */
+        p {
+            margin-bottom: 16px;
+        }
+
+        /* Links */
+        a {
+            color: #0366d6;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 16px;
+            padding-left: 2em;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* Checkboxes for task lists */
+        input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        /* Code */
+        code {
+            background-color: rgba(27, 31, 35, 0.05);
+            border-radius: 3px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 85%;
+            margin: 0;
+            padding: 0.2em 0.4em;
+        }
+
+        pre {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 85%;
+            line-height: 1.45;
+            margin-bottom: 16px;
+            overflow: auto;
+            padding: 16px;
+        }
+
+        pre code {
+            background-color: transparent;
+            border-radius: 0;
+            display: inline;
+            line-height: inherit;
+            margin: 0;
+            max-width: auto;
+            overflow: visible;
+            padding: 0;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 0.25em solid #dfe2e5;
+            color: #6a737d;
+            margin-bottom: 16px;
+            padding: 0 1em;
+        }
+
+        /* Tables */
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin-bottom: 16px;
+            width: 100%;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #dfe2e5;
+            padding: 6px 13px;
+        }
+
+        table th {
+            background-color: #f6f8fa;
+            font-weight: 600;
+        }
+
+        table tr:nth-child(2n) {
+            background-color: #f6f8fa;
+        }
+
+        /* Horizontal rule */
+        hr {
+            background-color: #e1e4e8;
+            border: 0;
+            height: 0.25em;
+            margin: 24px 0;
+        }
+
+        /* Custom styling for book sections */
+        .book-section {
+            margin-bottom: 32px;
+        }
+
+        .book-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .book-item:last-child {
+            border-bottom: none;
+        }
+
+        .book-checkbox {
+            margin-right: 12px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .book-info {
+            flex-grow: 1;
+        }
+
+        .book-title {
+            font-weight: 500;
+            color: #24292e;
+        }
+
+        .book-author {
+            color: #6a737d;
+            font-size: 0.9em;
+            margin-left: 8px;
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .status-wanted {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-owned {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-reading {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px;
+            }
+            
+            h1 {
+                font-size: 1.75em;
+            }
+            
+            h2 {
+                font-size: 1.25em;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div id="content">
+            <!-- Markdown content will be rendered here -->
+            <h1>📚 My Book Collection</h1>
+            <p>Loading your book collection...</p>
+        </div>
+    </div>
+
+    <script>
+        // Fetch and render the markdown file
+        async function loadMarkdown() {
+            try {
+                const response = await fetch('books.md');
+                const markdown = await response.text();
+                
+                // Configure marked options
+                marked.setOptions({
+                    breaks: true,
+                    gfm: true
+                });
+                
+                // Render markdown to HTML
+                const html = marked.parse(markdown);
+                document.getElementById('content').innerHTML = html;
+                
+                // Process task lists to make them look better
+                processTaskLists();
+                
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <h1>📚 My Book Collection</h1>
+                    <p>Could not load books.md file. Make sure it exists in the same directory as this HTML file.</p>
+                    <p>Create a <code>books.md</code> file to get started!</p>
+                `;
+            }
+        }
+
+        // Process task lists to add better styling
+        function processTaskLists() {
+            const listItems = document.querySelectorAll('li');
+            listItems.forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                if (checkbox) {
+                    item.classList.add('book-item');
+                    checkbox.classList.add('book-checkbox');
+                    
+                    // Disable checkboxes since this is a static site
+                    checkbox.disabled = true;
+                }
+            });
+        }
+
+        // Load markdown when page loads
+        document.addEventListener('DOMContentLoaded', loadMarkdown);
+    </script>
+</body>
+</html>
