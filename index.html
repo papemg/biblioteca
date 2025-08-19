@@ -15,164 +15,213 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
             line-height: 1.6;
             color: #24292e;
-            background-color: #ffffff;
-            padding: 0;
+            background-color: #f8f9fa;
+            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
+        .app-container {
+            display: flex;
+            min-height: 100vh;
         }
 
-        /* Headers */
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .sidebar-header p {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .nav-menu {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            transition: background 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active {
+            background: rgba(255,255,255,0.2);
+            border-right: 3px solid white;
+        }
+
+        .nav-icon {
+            margin-right: 10px;
+            font-size: 1.1em;
+        }
+
+        .stats-section {
+            padding: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: auto;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .stat-value {
+            font-weight: 600;
+        }
+
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 40px;
+            max-width: 100%;
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            min-height: 600px;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
         h1, h2, h3, h4, h5, h6 {
             font-weight: 600;
             line-height: 1.25;
-            margin-top: 24px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
+            color: #2c3e50;
         }
 
         h1 {
-            font-size: 2em;
-            border-bottom: 1px solid #eaecef;
-            padding-bottom: 0.3em;
-            margin-top: 0;
+            font-size: 2.5em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
         }
 
         h2 {
-            font-size: 1.5em;
-            border-bottom: 1px solid #eaecef;
-            padding-bottom: 0.3em;
+            font-size: 1.8em;
+            color: #34495e;
+            margin-bottom: 25px;
         }
 
         h3 {
-            font-size: 1.25em;
+            font-size: 1.4em;
+            color: #34495e;
         }
 
-        /* Paragraphs and text */
         p {
             margin-bottom: 16px;
-        }
-
-        /* Links */
-        a {
-            color: #0366d6;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
+            color: #555;
         }
 
         /* Lists */
         ul, ol {
-            margin-bottom: 16px;
-            padding-left: 2em;
+            margin-bottom: 20px;
+            padding-left: 0;
         }
 
         li {
-            margin-bottom: 8px;
+            list-style: none;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #e9ecef;
+            transition: all 0.3s ease;
         }
 
-        /* Checkboxes for task lists */
-        input[type="checkbox"] {
-            margin-right: 8px;
-            transform: scale(1.2);
-            cursor: pointer;
+        li:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        /* Code */
-        code {
-            background-color: rgba(27, 31, 35, 0.05);
-            border-radius: 3px;
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            font-size: 85%;
-            margin: 0;
-            padding: 0.2em 0.4em;
-        }
-
-        pre {
-            background-color: #f6f8fa;
-            border-radius: 6px;
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            font-size: 85%;
-            line-height: 1.45;
-            margin-bottom: 16px;
-            overflow: auto;
-            padding: 16px;
-        }
-
-        pre code {
-            background-color: transparent;
-            border-radius: 0;
-            display: inline;
-            line-height: inherit;
-            margin: 0;
-            max-width: auto;
-            overflow: visible;
-            padding: 0;
-        }
-
-        /* Blockquotes */
-        blockquote {
-            border-left: 0.25em solid #dfe2e5;
-            color: #6a737d;
-            margin-bottom: 16px;
-            padding: 0 1em;
-        }
-
-        /* Tables */
-        table {
-            border-collapse: collapse;
-            border-spacing: 0;
-            margin-bottom: 16px;
-            width: 100%;
-        }
-
-        table th,
-        table td {
-            border: 1px solid #dfe2e5;
-            padding: 6px 13px;
-        }
-
-        table th {
-            background-color: #f6f8fa;
-            font-weight: 600;
-        }
-
-        table tr:nth-child(2n) {
-            background-color: #f6f8fa;
-        }
-
-        /* Horizontal rule */
-        hr {
-            background-color: #e1e4e8;
-            border: 0;
-            height: 0.25em;
-            margin: 24px 0;
-        }
-
-        /* Custom styling for book sections */
-        .book-section {
-            margin-bottom: 32px;
-        }
-
-        .book-item {
+        /* Task list styling */
+        li.task-list-item {
             display: flex;
             align-items: flex-start;
-            margin-bottom: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
+            position: relative;
         }
 
-        .book-item:last-child {
-            border-bottom: none;
+        li.task-list-item.checked {
+            border-left-color: #28a745;
+            background: #d4edda;
         }
 
-        .book-checkbox {
-            margin-right: 12px;
+        li.task-list-item.unchecked {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 15px;
             margin-top: 2px;
+            transform: scale(1.3);
+            cursor: pointer;
             flex-shrink: 0;
         }
 
@@ -181,113 +230,509 @@
         }
 
         .book-title {
-            font-weight: 500;
-            color: #24292e;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1em;
+            margin-bottom: 5px;
         }
 
         .book-author {
-            color: #6a737d;
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.95em;
+        }
+
+        /* Code styling */
+        code {
+            background-color: #f1f3f4;
+            border-radius: 4px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
             font-size: 0.9em;
-            margin-left: 8px;
+            padding: 2px 6px;
+            color: #e83e8c;
         }
 
-        /* Status badges */
-        .status-badge {
+        pre {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        /* Tables */
+        table {
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin-bottom: 20px;
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        table th,
+        table td {
+            border: 1px solid #dee2e6;
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid #667eea;
+            color: #6a737d;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #6c757d;
+        }
+
+        .loading::after {
+            content: '';
             display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: 500;
-            margin-left: 8px;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #6c757d;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
         }
 
-        .status-wanted {
-            background-color: #fff3cd;
-            color: #856404;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        .status-owned {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .status-reading {
-            background-color: #cce5ff;
-            color: #004085;
-        }
-
-        /* Responsive */
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .container {
-                padding: 20px 16px;
+            .sidebar {
+                transform: translateX(-100%);
             }
-            
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 80px 20px 20px;
+            }
+
             h1 {
-                font-size: 1.75em;
+                font-size: 2em;
             }
-            
+
             h2 {
-                font-size: 1.25em;
+                font-size: 1.5em;
             }
+
+            .content-section {
+                padding: 20px;
+            }
+        }
+
+        /* Overlay for mobile */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        /* Search functionality */
+        .search-container {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .search-input:focus {
+            outline: none;
+            background: rgba(255,255,255,0.2);
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div id="content">
-            <!-- Markdown content will be rendered here -->
-            <h1>📚 My Book Collection</h1>
-            <p>Loading your book collection...</p>
-        </div>
+    <div class="app-container">
+        <!-- Mobile menu button -->
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+        
+        <!-- Overlay for mobile -->
+        <div class="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1>📚 Biblioteca</h1>
+                <p>Personal Book Collection</p>
+            </div>
+
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search books..." id="searchInput">
+            </div>
+
+            <div class="nav-menu" id="navMenu">
+                <button class="nav-item active" onclick="showSection('overview')">
+                    <span class="nav-icon">🏠</span>Overview
+                </button>
+            </div>
+
+            <div class="stats-section" id="statsSection">
+                <div class="stat-item">
+                    <span>Total Books:</span>
+                    <span class="stat-value" id="totalBooks">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Want to Buy:</span>
+                    <span class="stat-value" id="wantedBooks">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Owned:</span>
+                    <span class="stat-value" id="ownedBooks">0</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="content-section active" id="overview">
+                <div class="loading">Loading your book collection...</div>
+            </div>
+        </main>
     </div>
 
     <script>
-        // Fetch and render the markdown file
-        async function loadMarkdown() {
-            try {
-                const response = await fetch('books.md');
-                const markdown = await response.text();
+        let markdownContent = '';
+        let sections = {};
+        let allBooks = { wanted: 0, owned: 0, total: 0 };
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.overlay');
+            
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        // Show specific section
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // Add active to clicked nav item
+            event.target.classList.add('active');
+
+            // Close mobile sidebar
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+            }
+        }
+
+        // Parse markdown and create sections
+        function parseMarkdownSections(markdown) {
+            const lines = markdown.split('\n');
+            const sections = {};
+            let currentSection = null;
+            let currentContent = [];
+
+            for (const line of lines) {
+                if (line.startsWith('# ')) {
+                    // Main title
+                    if (currentSection) {
+                        sections[currentSection.id] = {
+                            title: currentSection.title,
+                            content: currentContent.join('\n')
+                        };
+                    }
+                    currentSection = {
+                        title: line.substring(2).trim(),
+                        id: 'overview'
+                    };
+                    currentContent = [line];
+                } else if (line.startsWith('## ')) {
+                    // Section header
+                    if (currentSection) {
+                        sections[currentSection.id] = {
+                            title: currentSection.title,
+                            content: currentContent.join('\n')
+                        };
+                    }
+                    
+                    const title = line.substring(3).trim();
+                    const id = title.toLowerCase()
+                        .replace(/[^\w\s]/g, '')
+                        .replace(/\s+/g, '-')
+                        .replace(/-+/g, '-')
+                        .replace(/^-|-$/g, '');
+                    
+                    currentSection = { title, id };
+                    currentContent = [line];
+                } else {
+                    currentContent.push(line);
+                }
+            }
+
+            // Add the last section
+            if (currentSection) {
+                sections[currentSection.id] = {
+                    title: currentSection.title,
+                    content: currentContent.join('\n')
+                };
+            }
+
+            return sections;
+        }
+
+        // Count books in content
+        function countBooks(content) {
+            const lines = content.split('\n');
+            let wanted = 0;
+            let owned = 0;
+
+            for (const line of lines) {
+                if (line.trim().startsWith('- [ ]')) {
+                    wanted++;
+                } else if (line.trim().startsWith('- [x]')) {
+                    owned++;
+                }
+            }
+
+            return { wanted, owned, total: wanted + owned };
+        }
+
+        // Create navigation menu
+        function createNavigation(sections) {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.innerHTML = '';
+
+            // Add overview first
+            const overviewBtn = document.createElement('button');
+            overviewBtn.className = 'nav-item active';
+            overviewBtn.onclick = () => showSection('overview');
+            overviewBtn.innerHTML = '<span class="nav-icon">🏠</span>Overview';
+            navMenu.appendChild(overviewBtn);
+
+            // Add other sections
+            Object.entries(sections).forEach(([id, section]) => {
+                if (id !== 'overview') {
+                    const button = document.createElement('button');
+                    button.className = 'nav-item';
+                    button.onclick = () => showSection(id);
+                    
+                    // Add appropriate icon
+                    let icon = '📄';
+                    if (section.title.toLowerCase().includes('want')) icon = '🛒';
+                    if (section.title.toLowerCase().includes('own')) icon = '✅';
+                    if (section.title.toLowerCase().includes('reading')) icon = '📖';
+                    if (section.title.toLowerCase().includes('stats')) icon = '📊';
+                    if (section.title.toLowerCase().includes('notes')) icon = '📝';
+                    
+                    button.innerHTML = `<span class="nav-icon">${icon}</span>${section.title}`;
+                    navMenu.appendChild(button);
+                }
+            });
+        }
+
+        // Create content sections
+        function createContentSections(sections) {
+            const mainContent = document.querySelector('.main-content');
+            
+            // Clear existing content
+            mainContent.innerHTML = '';
+
+            Object.entries(sections).forEach(([id, section]) => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'content-section';
+                sectionDiv.id = id;
                 
+                if (id === 'overview') {
+                    sectionDiv.classList.add('active');
+                }
+
                 // Configure marked options
                 marked.setOptions({
                     breaks: true,
                     gfm: true
                 });
-                
+
                 // Render markdown to HTML
-                const html = marked.parse(markdown);
-                document.getElementById('content').innerHTML = html;
-                
-                // Process task lists to make them look better
-                processTaskLists();
-                
-            } catch (error) {
-                document.getElementById('content').innerHTML = `
-                    <h1>📚 My Book Collection</h1>
-                    <p>Could not load books.md file. Make sure it exists in the same directory as this HTML file.</p>
-                    <p>Create a <code>books.md</code> file to get started!</p>
-                `;
-            }
+                const html = marked.parse(section.content);
+                sectionDiv.innerHTML = html;
+
+                mainContent.appendChild(sectionDiv);
+            });
+
+            // Process task lists
+            processTaskLists();
         }
 
-        // Process task lists to add better styling
+        // Process task lists for better styling
         function processTaskLists() {
             const listItems = document.querySelectorAll('li');
             listItems.forEach(item => {
                 const checkbox = item.querySelector('input[type="checkbox"]');
                 if (checkbox) {
-                    item.classList.add('book-item');
-                    checkbox.classList.add('book-checkbox');
+                    item.classList.add('task-list-item');
+                    item.classList.add(checkbox.checked ? 'checked' : 'unchecked');
                     
                     // Disable checkboxes since this is a static site
                     checkbox.disabled = true;
+
+                    // Parse book title and author
+                    const textContent = item.textContent;
+                    const match = textContent.match(/\*\*(.*?)\*\* by \*(.*?)\*/);
+                    if (match) {
+                        const [, title, author] = match;
+                        const bookInfo = document.createElement('div');
+                        bookInfo.className = 'book-info';
+                        bookInfo.innerHTML = `
+                            <div class="book-title">${title}</div>
+                            <div class="book-author">by ${author}</div>
+                        `;
+                        
+                        // Replace the text content but keep the checkbox
+                        item.innerHTML = '';
+                        item.appendChild(checkbox);
+                        item.appendChild(bookInfo);
+                    }
                 }
             });
         }
 
-        // Load markdown when page loads
+        // Update statistics
+        function updateStats(sections) {
+            let totalWanted = 0;
+            let totalOwned = 0;
+
+            Object.values(sections).forEach(section => {
+                const counts = countBooks(section.content);
+                totalWanted += counts.wanted;
+                totalOwned += counts.owned;
+            });
+
+            document.getElementById('wantedBooks').textContent = totalWanted;
+            document.getElementById('ownedBooks').textContent = totalOwned;
+            document.getElementById('totalBooks').textContent = totalWanted + totalOwned;
+        }
+
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const navItems = document.querySelectorAll('.nav-item');
+                
+                navItems.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    if (text.includes(query) || query === '') {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Load and render markdown
+        async function loadMarkdown() {
+            try {
+                const response = await fetch('books.md');
+                const markdown = await response.text();
+                
+                const sections = parseMarkdownSections(markdown);
+                createNavigation(sections);
+                createContentSections(sections);
+                updateStats(sections);
+                setupSearch();
+                
+            } catch (error) {
+                document.querySelector('.main-content').innerHTML = `
+                    <div class="content-section active">
+                        <h1>📚 My Book Collection</h1>
+                        <p>Could not load books.md file. Make sure it exists in the same directory as this HTML file.</p>
+                        <p>Create a <code>books.md</code> file to get started!</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize when page loads
         document.addEventListener('DOMContentLoaded', loadMarkdown);
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !menuBtn.contains(e.target) && 
+                sidebar.classList.contains('open')) {
+                toggleSidebar();
+            }
+        });
     </script>
 </body>
 </html>
