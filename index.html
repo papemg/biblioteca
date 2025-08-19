@@ -27,35 +27,50 @@
         /* Sidebar Styles */
         .sidebar {
             width: 280px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #000000;
             color: white;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
             z-index: 1000;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3);
             transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-240px);
+            width: 40px;
         }
 
         .sidebar-header {
             padding: 30px 20px;
             text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid #333333;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            padding: 20px 5px;
         }
 
         .sidebar-header h1 {
             font-size: 1.5rem;
             margin-bottom: 8px;
             font-weight: 600;
+            transition: opacity 0.3s ease;
         }
 
-        .sidebar-header p {
-            opacity: 0.8;
-            font-size: 0.9rem;
+        .sidebar.collapsed .sidebar-header h1 {
+            opacity: 0;
         }
 
         .nav-menu {
             padding: 20px 0;
+            transition: padding 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-menu {
+            padding: 10px 0;
         }
 
         .nav-item {
@@ -63,33 +78,60 @@
             padding: 12px 20px;
             color: white;
             text-decoration: none;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
             border: none;
             background: none;
             width: 100%;
             text-align: left;
             cursor: pointer;
             font-size: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .nav-item {
+            padding: 12px 10px;
+            text-align: center;
         }
 
         .nav-item:hover {
-            background: rgba(255,255,255,0.1);
+            background: #333333;
         }
 
         .nav-item.active {
-            background: rgba(255,255,255,0.2);
+            background: #444444;
             border-right: 3px solid white;
         }
 
         .nav-icon {
             margin-right: 10px;
             font-size: 1.1em;
+            transition: margin 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-icon {
+            margin-right: 0;
+        }
+
+        .nav-text {
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .nav-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
         }
 
         .stats-section {
             padding: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid #333333;
             margin-top: auto;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .stats-section {
+            padding: 10px 5px;
         }
 
         .stat-item {
@@ -97,27 +139,36 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 0.9rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .stat-item {
+            opacity: 0;
         }
 
         .stat-value {
             font-weight: 600;
         }
 
-        /* Mobile menu button */
-        .mobile-menu-btn {
-            display: none;
+        /* Sidebar toggle button */
+        .sidebar-toggle {
             position: fixed;
             top: 20px;
             left: 20px;
             z-index: 1001;
-            background: #667eea;
+            background: #000000;
             color: white;
             border: none;
             padding: 12px;
             border-radius: 8px;
             font-size: 18px;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            transition: left 0.3s ease;
+        }
+
+        .sidebar.collapsed + .main-content .sidebar-toggle {
+            left: 60px;
         }
 
         /* Main Content */
@@ -126,6 +177,11 @@
             margin-left: 280px;
             padding: 40px;
             max-width: 100%;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: 40px;
         }
 
         .content-section {
@@ -148,6 +204,34 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Search Bar in Main Content */
+        .main-search-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+        }
+
+        .main-search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .main-search-input:focus {
+            outline: none;
+            border-color: #000000;
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .main-search-input::placeholder {
+            color: #6c757d;
+        }
+
         /* Typography */
         h1, h2, h3, h4, h5, h6 {
             font-weight: 600;
@@ -158,7 +242,7 @@
 
         h1 {
             font-size: 2.5em;
-            border-bottom: 3px solid #667eea;
+            border-bottom: 3px solid #000000;
             padding-bottom: 15px;
             margin-bottom: 30px;
         }
@@ -208,13 +292,13 @@
         }
 
         li.task-list-item.checked {
-            border-left-color: #28a745;
-            background: #d4edda;
+            border-left-color: #000000;
+            background: #f8f9fa;
         }
 
         li.task-list-item.unchecked {
-            border-left-color: #ffc107;
-            background: #fff3cd;
+            border-left-color: #666666;
+            background: #ffffff;
         }
 
         input[type="checkbox"] {
@@ -240,6 +324,43 @@
             color: #6c757d;
             font-style: italic;
             font-size: 0.95em;
+        }
+
+        /* Book sections in overview */
+        .book-sections-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .book-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+        }
+
+        .book-section h3 {
+            margin-bottom: 20px;
+            color: #495057;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Hide items that don't match search */
+        .hidden {
+            display: none !important;
+        }
+
+        /* No results message */
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-style: italic;
         }
 
         /* Code styling */
@@ -295,7 +416,7 @@
 
         /* Blockquotes */
         blockquote {
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #000000;
             color: #6a737d;
             margin-bottom: 20px;
             padding: 15px 20px;
@@ -336,13 +457,21 @@
                 transform: translateX(0);
             }
 
-            .mobile-menu-btn {
-                display: block;
+            .sidebar.collapsed {
+                transform: translateX(-100%);
             }
 
             .main-content {
                 margin-left: 0;
                 padding: 80px 20px 20px;
+            }
+
+            .sidebar.collapsed + .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar-toggle {
+                left: 20px !important;
             }
 
             h1 {
@@ -355,6 +484,11 @@
 
             .content-section {
                 padding: 20px;
+            }
+
+            .book-sections-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
         }
 
@@ -373,38 +507,11 @@
         .overlay.active {
             display: block;
         }
-
-        /* Search functionality */
-        .search-container {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 6px;
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-
-        .search-input::placeholder {
-            color: rgba(255,255,255,0.7);
-        }
-
-        .search-input:focus {
-            outline: none;
-            background: rgba(255,255,255,0.2);
-        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
 </head>
 <body>
     <div class="app-container">
-        <!-- Mobile menu button -->
-        <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
-        
         <!-- Overlay for mobile -->
         <div class="overlay" onclick="toggleSidebar()"></div>
 
@@ -412,16 +519,12 @@
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h1>📚 Biblioteca</h1>
-                <p>Personal Book Collection</p>
-            </div>
-
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Search books..." id="searchInput">
             </div>
 
             <div class="nav-menu" id="navMenu">
                 <button class="nav-item active" onclick="showSection('overview')">
-                    <span class="nav-icon">🏠</span>Overview
+                    <span class="nav-icon">🏠</span>
+                    <span class="nav-text">Overview</span>
                 </button>
             </div>
 
@@ -443,6 +546,14 @@
 
         <!-- Main Content -->
         <main class="main-content">
+            <!-- Sidebar toggle button -->
+            <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+
+            <!-- Search bar in main content (only visible on overview) -->
+            <div class="main-search-container" id="mainSearchContainer" style="display: none;">
+                <input type="text" class="main-search-input" placeholder="Search your books..." id="mainSearchInput">
+            </div>
+
             <div class="content-section active" id="overview">
                 <div class="loading">Loading your book collection...</div>
             </div>
@@ -453,14 +564,21 @@
         let markdownContent = '';
         let sections = {};
         let allBooks = { wanted: 0, owned: 0, total: 0 };
+        let allBooksData = { wanted: [], owned: [] };
 
-        // Mobile sidebar toggle
+        // Sidebar toggle functionality
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.overlay');
             
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('active');
+            if (window.innerWidth <= 768) {
+                // Mobile behavior
+                sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+            } else {
+                // Desktop behavior - collapse/expand
+                sidebar.classList.toggle('collapsed');
+            }
         }
 
         // Show specific section
@@ -484,13 +602,24 @@
             // Add active to clicked nav item
             event.target.classList.add('active');
 
+            // Show/hide search bar based on section
+            const searchContainer = document.getElementById('mainSearchContainer');
+            if (sectionId === 'overview') {
+                searchContainer.style.display = 'block';
+            } else {
+                searchContainer.style.display = 'none';
+            }
+
             // Close mobile sidebar
             if (window.innerWidth <= 768) {
-                toggleSidebar();
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.querySelector('.overlay');
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
             }
         }
 
-        // Parse markdown and automatically create sections based on checkbox status
+        // Parse markdown and create overview with both sections
         function parseMarkdownSections(markdown) {
             const lines = markdown.split('\n');
             const sections = {};
@@ -564,28 +693,37 @@
                 };
             }
 
-            // Create the final sections structure
-            sections['overview'] = {
-                title: 'Overview',
-                content: overviewContent.join('\n')
-            };
+            // Store books data for search
+            allBooksData.wanted = wantedBooks;
+            allBooksData.owned = ownedBooks;
 
-            // Only add book sections if there are books
+            // Create overview content with both book sections
+            let overviewHTML = overviewContent.join('\n');
+            overviewHTML += '\n\n<div class="book-sections-container">';
+            
             if (wantedBooks.length > 0) {
-                sections['wanted'] = {
-                    title: '🛒 Books I Want',
-                    content: '## 🛒 Books I Want\n\n' + wantedBooks.join('\n')
-                };
+                overviewHTML += '<div class="book-section" id="wantedSection">';
+                overviewHTML += '<h3>🛒 Books I Want</h3>';
+                overviewHTML += wantedBooks.join('\n');
+                overviewHTML += '</div>';
             }
 
             if (ownedBooks.length > 0) {
-                sections['owned'] = {
-                    title: '✅ Books I Own',
-                    content: '## ✅ Books I Own\n\n' + ownedBooks.join('\n')
-                };
+                overviewHTML += '<div class="book-section" id="ownedSection">';
+                overviewHTML += '<h3>✅ Books I Own</h3>';
+                overviewHTML += ownedBooks.join('\n');
+                overviewHTML += '</div>';
             }
+            
+            overviewHTML += '</div>';
 
-            // Add other sections
+            // Create the final sections structure
+            sections['overview'] = {
+                title: 'Overview',
+                content: overviewHTML
+            };
+
+            // Add other sections (if any)
             Object.assign(sections, otherSections);
 
             return sections;
@@ -608,7 +746,7 @@
             return { wanted, owned, total: wanted + owned };
         }
 
-        // Create navigation menu - automatically detect available sections
+        // Create navigation menu
         function createNavigation(sections) {
             const navMenu = document.getElementById('navMenu');
             navMenu.innerHTML = '';
@@ -617,28 +755,12 @@
             const overviewBtn = document.createElement('button');
             overviewBtn.className = 'nav-item active';
             overviewBtn.onclick = () => showSection('overview');
-            overviewBtn.innerHTML = '<span class="nav-icon">🏠</span>Overview';
+            overviewBtn.innerHTML = '<span class="nav-icon">🏠</span><span class="nav-text">Overview</span>';
             navMenu.appendChild(overviewBtn);
-
-            // Add book sections with specific order and icons
-            const bookSections = [
-                { id: 'wanted', icon: '🛒', priority: 1 },
-                { id: 'owned', icon: '✅', priority: 2 }
-            ];
-
-            bookSections.forEach(({ id, icon }) => {
-                if (sections[id]) {
-                    const button = document.createElement('button');
-                    button.className = 'nav-item';
-                    button.onclick = () => showSection(id);
-                    button.innerHTML = `<span class="nav-icon">${icon}</span>${sections[id].title}`;
-                    navMenu.appendChild(button);
-                }
-            });
 
             // Add other sections (non-book sections)
             Object.entries(sections).forEach(([id, section]) => {
-                if (id !== 'overview' && id !== 'wanted' && id !== 'owned') {
+                if (id !== 'overview') {
                     const button = document.createElement('button');
                     button.className = 'nav-item';
                     button.onclick = () => showSection(id);
@@ -649,7 +771,7 @@
                     if (section.title.toLowerCase().includes('review')) icon = '⭐';
                     if (section.title.toLowerCase().includes('goal')) icon = '🎯';
                     
-                    button.innerHTML = `<span class="nav-icon">${icon}</span>${section.title}`;
+                    button.innerHTML = `<span class="nav-icon">${icon}</span><span class="nav-text">${section.title}</span>`;
                     navMenu.appendChild(button);
                 }
             });
@@ -659,8 +781,8 @@
         function createContentSections(sections) {
             const mainContent = document.querySelector('.main-content');
             
-            // Clear existing content
-            mainContent.innerHTML = '';
+            // Clear existing content sections
+            document.querySelectorAll('.content-section').forEach(section => section.remove());
 
             Object.entries(sections).forEach(([id, section]) => {
                 const sectionDiv = document.createElement('div');
@@ -737,22 +859,50 @@
             document.getElementById('totalBooks').textContent = totalWanted + totalOwned;
         }
 
-        // Search functionality
-        function setupSearch() {
-            const searchInput = document.getElementById('searchInput');
+        // Search functionality for overview
+        function setupMainSearch() {
+            const searchInput = document.getElementById('mainSearchInput');
             searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toLowerCase();
-                const navItems = document.querySelectorAll('.nav-item');
                 
-                navItems.forEach(item => {
-                    const text = item.textContent.toLowerCase();
-                    if (text.includes(query) || query === '') {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
+                // Search in both wanted and owned sections
+                const wantedSection = document.getElementById('wantedSection');
+                const ownedSection = document.getElementById('ownedSection');
+                
+                if (wantedSection) filterBooksInSection(wantedSection, query);
+                if (ownedSection) filterBooksInSection(ownedSection, query);
             });
+        }
+
+        // Filter books in a specific section
+        function filterBooksInSection(section, query) {
+            const bookItems = section.querySelectorAll('.task-list-item');
+            let visibleCount = 0;
+
+            bookItems.forEach(item => {
+                const title = item.querySelector('.book-title')?.textContent.toLowerCase() || '';
+                const author = item.querySelector('.book-author')?.textContent.toLowerCase() || '';
+                
+                if (query === '' || title.includes(query) || author.includes(query)) {
+                    item.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+
+            // Show/hide no results message
+            let noResultsMsg = section.querySelector('.no-results');
+            if (visibleCount === 0 && query !== '') {
+                if (!noResultsMsg) {
+                    noResultsMsg = document.createElement('div');
+                    noResultsMsg.className = 'no-results';
+                    noResultsMsg.textContent = 'No books found matching your search.';
+                    section.appendChild(noResultsMsg);
+                }
+            } else if (noResultsMsg) {
+                noResultsMsg.remove();
+            }
         }
 
         // Load and render markdown
@@ -765,10 +915,14 @@
                 createNavigation(sections);
                 createContentSections(sections);
                 updateStats(sections);
-                setupSearch();
+                setupMainSearch();
+                
+                // Show search container for overview
+                document.getElementById('mainSearchContainer').style.display = 'block';
                 
             } catch (error) {
                 document.querySelector('.main-content').innerHTML = `
+                    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
                     <div class="content-section active">
                         <h1>📚 My Book Collection</h1>
                         <p>Could not load books.md file. Make sure it exists in the same directory as this HTML file.</p>
@@ -784,13 +938,15 @@
         // Close mobile menu when clicking outside
         document.addEventListener('click', (e) => {
             const sidebar = document.getElementById('sidebar');
-            const menuBtn = document.querySelector('.mobile-menu-btn');
+            const toggleBtn = document.querySelector('.sidebar-toggle');
             
             if (window.innerWidth <= 768 && 
                 !sidebar.contains(e.target) && 
-                !menuBtn.contains(e.target) && 
+                !toggleBtn.contains(e.target) && 
                 sidebar.classList.contains('open')) {
-                toggleSidebar();
+                const overlay = document.querySelector('.overlay');
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
             }
         });
     </script>
