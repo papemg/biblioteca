@@ -23,29 +23,40 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 280px;
+            width: min(280px, 30vw);
             height: 100vh;
             background: #000000;
             color: white;
             overflow-y: auto;
             z-index: 1000;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .sidebar.collapsed {
-            transform: translateX(-240px);
+            width: min(60px, 8vw);
         }
 
         .sidebar-header {
             padding: 30px 20px;
             text-align: center;
             border-bottom: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            padding: 20px 5px;
         }
 
         .sidebar-header h1 {
-            font-size: 1.5rem;
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
             margin: 0;
             font-weight: 600;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .sidebar-header h1 {
+            opacity: 0;
+            font-size: 0;
         }
 
         .nav-menu {
@@ -84,13 +95,23 @@
             padding: 20px;
             border-top: 1px solid #333;
             margin-top: auto;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed .stats-section {
+            padding: 10px 5px;
         }
 
         .stat-item {
             display: flex;
             justify-content: space-between;
             margin-bottom: 8px;
-            font-size: 0.9rem;
+            font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .stat-item {
+            opacity: 0;
         }
 
         .stat-value {
@@ -108,35 +129,31 @@
             border: none;
             padding: 12px;
             border-radius: 8px;
-            font-size: 18px;
+            font-size: clamp(1rem, 2vw, 1.2rem);
             cursor: pointer;
-            transition: left 0.3s ease;
-        }
-
-        .sidebar.collapsed + .main-content .sidebar-toggle {
-            left: 60px;
+            transition: all 0.3s ease;
         }
 
         /* Main Content */
         .main-content {
-            margin-left: 280px;
-            padding: 40px;
+            margin-left: min(280px, 30vw);
+            padding: clamp(20px, 4vw, 40px);
             min-height: 100vh;
-            transition: margin-left 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .sidebar.collapsed + .main-content {
-            margin-left: 40px;
+            margin-left: min(60px, 8vw);
         }
 
         .content-section {
             display: none;
             background: white;
             border-radius: 12px;
-            padding: 40px;
+            padding: clamp(20px, 4vw, 40px);
             box-shadow: 0 2px 20px rgba(0,0,0,0.08);
             margin-bottom: 30px;
-            min-height: 600px;
+            min-height: 60vh;
         }
 
         .content-section.active {
@@ -147,17 +164,17 @@
         .search-container {
             background: white;
             border-radius: 12px;
-            padding: 20px;
+            padding: clamp(15px, 3vw, 20px);
             margin-bottom: 30px;
             box-shadow: 0 2px 20px rgba(0,0,0,0.08);
         }
 
         .search-input {
             width: 100%;
-            padding: 15px 20px;
+            padding: clamp(12px, 2vw, 15px) clamp(15px, 3vw, 20px);
             border: 2px solid #e9ecef;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: clamp(0.9rem, 2vw, 1rem);
             transition: border-color 0.3s ease;
         }
 
@@ -168,7 +185,7 @@
 
         /* Typography */
         h1 {
-            font-size: 2.5em;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             border-bottom: 3px solid #000;
             padding-bottom: 15px;
             margin-bottom: 30px;
@@ -176,13 +193,13 @@
         }
 
         h2 {
-            font-size: 1.8em;
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
             color: #34495e;
             margin-bottom: 25px;
         }
 
         h3 {
-            font-size: 1.4em;
+            font-size: clamp(1.2rem, 2.5vw, 1.4rem);
             color: #34495e;
             margin-bottom: 20px;
         }
@@ -190,15 +207,15 @@
         /* Book Lists */
         .book-sections {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(min(300px, 45vw), 1fr));
+            gap: clamp(15px, 3vw, 30px);
             margin-top: 30px;
         }
 
         .book-section {
             background: #f8f9fa;
             border-radius: 12px;
-            padding: 25px;
+            padding: clamp(15px, 3vw, 25px);
             border: 1px solid #e9ecef;
         }
 
@@ -210,7 +227,7 @@
         .book-item {
             background: white;
             margin-bottom: 15px;
-            padding: 15px;
+            padding: clamp(10px, 2vw, 15px);
             border-radius: 8px;
             border-left: 4px solid #e9ecef;
             transition: all 0.3s ease;
@@ -233,31 +250,33 @@
             font-weight: 600;
             color: #2c3e50;
             margin-bottom: 5px;
+            font-size: clamp(0.9rem, 1.8vw, 1.1rem);
         }
 
         .book-author {
             color: #6c757d;
             font-style: italic;
+            font-size: clamp(0.8rem, 1.5vw, 0.95rem);
         }
 
         /* Dashboard */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(min(250px, 40vw), 1fr));
+            gap: clamp(15px, 2vw, 20px);
             margin-bottom: 30px;
         }
 
         .dashboard-card {
             background: white;
             border-radius: 12px;
-            padding: 20px;
+            padding: clamp(15px, 3vw, 20px);
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border: 1px solid #e9ecef;
         }
 
         .stat-number {
-            font-size: 2.5em;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             font-weight: bold;
             color: #000;
             margin: 10px 0;
@@ -265,7 +284,7 @@
 
         .stat-label {
             color: #6c757d;
-            font-size: 0.9em;
+            font-size: clamp(0.7rem, 1.2vw, 0.9rem);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -369,20 +388,6 @@
             </button>
         </div>
 
-        <div class="stats-section">
-            <div class="stat-item">
-                <span>Total Books:</span>
-                <span class="stat-value" id="totalBooks">0</span>
-            </div>
-            <div class="stat-item">
-                <span>Want to Read:</span>
-                <span class="stat-value" id="wantedBooks">0</span>
-            </div>
-            <div class="stat-item">
-                <span>Owned:</span>
-                <span class="stat-value" id="ownedBooks">0</span>
-            </div>
-        </div>
     </nav>
 
     <!-- Main Content -->
@@ -429,15 +434,20 @@
                 
                 <div class="dashboard-card">
                     <h3>🛒 Wishlist</h3>
-                    <div class="stat-number" id="dashWantedBooks">9</div>
+                    <div class="stat-number" id="dashWantedBooks">8</div>
                     <div class="stat-label">Books to Buy</div>
                 </div>
                 
                 <div class="dashboard-card">
                     <h3>📖 Library</h3>
-                    <div class="stat-number" id="dashOwnedBooks">6</div>
+                    <div class="stat-number" id="dashOwnedBooks">7</div>
                     <div class="stat-label">Books Owned</div>
                 </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3>📈 Collection Growth Over Time</h3>
+                <canvas id="growthChart" width="400" height="200" style="max-width: 100%;"></canvas>
             </div>
             
             <div class="dashboard-card">
@@ -505,6 +515,18 @@
                 { title: "Sapiens", author: "Yuval Noah Harari" }
             ]
         };
+
+        // Sample data for the chart (simulating growth over time)
+        const chartData = [
+            { month: 'Jan', wanted: 5, owned: 3 },
+            { month: 'Feb', wanted: 6, owned: 4 },
+            { month: 'Mar', wanted: 7, owned: 4 },
+            { month: 'Apr', wanted: 8, owned: 5 },
+            { month: 'May', wanted: 9, owned: 5 },
+            { month: 'Jun', wanted: 10, owned: 6 },
+            { month: 'Jul', wanted: 9, owned: 7 },
+            { month: 'Aug', wanted: 8, owned: 7 }
+        ];
 
         // Toggle sidebar
         function toggleSidebar() {
@@ -591,14 +613,137 @@
             const totalCount = wantedCount + ownedCount;
             
             // Update sidebar stats
-            document.getElementById('totalBooks').textContent = totalCount;
-            document.getElementById('wantedBooks').textContent = wantedCount;
-            document.getElementById('ownedBooks').textContent = ownedCount;
+            document.getElementById('totalBooks').textContent = `**${totalCount}**`;
+            document.getElementById('wantedBooks').textContent = `**${wantedCount}**`;
             
             // Update dashboard stats
             document.getElementById('dashTotalBooks').textContent = totalCount;
             document.getElementById('dashWantedBooks').textContent = wantedCount;
             document.getElementById('dashOwnedBooks').textContent = ownedCount;
+        }
+
+        // Create growth chart
+        function createGrowthChart() {
+            const canvas = document.getElementById('growthChart');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 200;
+            
+            const width = canvas.width;
+            const height = canvas.height;
+            const padding = 40;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Find max value for scaling
+            const maxValue = Math.max(
+                ...chartData.map(d => Math.max(d.wanted, d.owned))
+            );
+            
+            // Draw background
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw grid lines
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (chartHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            
+            // Calculate points
+            const wantedPoints = [];
+            const ownedPoints = [];
+            
+            chartData.forEach((data, index) => {
+                const x = padding + (chartWidth / (chartData.length - 1)) * index;
+                const wantedY = padding + chartHeight - (data.wanted / maxValue) * chartHeight;
+                const ownedY = padding + chartHeight - (data.owned / maxValue) * chartHeight;
+                
+                wantedPoints.push({ x, y: wantedY });
+                ownedPoints.push({ x, y: ownedY });
+            });
+            
+            // Draw "Want to Read" line
+            ctx.strokeStyle = '#007bff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            wantedPoints.forEach((point, index) => {
+                if (index === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            });
+            ctx.stroke();
+            
+            // Draw "Owned" line
+            ctx.strokeStyle = '#28a745';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ownedPoints.forEach((point, index) => {
+                if (index === 0) {
+                    ctx.moveTo(point.x, point.y);
+                } else {
+                    ctx.lineTo(point.x, point.y);
+                }
+            });
+            ctx.stroke();
+            
+            // Draw points
+            wantedPoints.forEach(point => {
+                ctx.fillStyle = '#007bff';
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            ownedPoints.forEach(point => {
+                ctx.fillStyle = '#28a745';
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 4, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            // Draw month labels
+            ctx.fillStyle = '#6c757d';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            
+            chartData.forEach((data, index) => {
+                const x = padding + (chartWidth / (chartData.length - 1)) * index;
+                ctx.fillText(data.month, x, height - 10);
+            });
+            
+            // Draw y-axis labels
+            ctx.textAlign = 'right';
+            for (let i = 0; i <= 5; i++) {
+                const value = Math.round((maxValue / 5) * (5 - i));
+                const y = padding + (chartHeight / 5) * i + 4;
+                ctx.fillText(value.toString(), padding - 10, y);
+            }
+            
+            // Draw legend
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#007bff';
+            ctx.fillRect(padding, 10, 15, 3);
+            ctx.fillStyle = '#6c757d';
+            ctx.fillText('Want to Read', padding + 20, 18);
+            
+            ctx.fillStyle = '#28a745';
+            ctx.fillRect(padding + 120, 10, 15, 3);
+            ctx.fillStyle = '#6c757d';
+            ctx.fillText('Owned', padding + 140, 18);
         }
 
         // Search functionality
@@ -638,6 +783,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadBooks();
             setupSearch();
+            createGrowthChart();
+        });
+
+        // Redraw chart on window resize
+        window.addEventListener('resize', () => {
+            setTimeout(createGrowthChart, 100);
         });
     </script>
 </body>
