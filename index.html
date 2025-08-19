@@ -341,6 +341,8 @@
             box-shadow: 2px 0 10px rgba(0,0,0,0.3);
             transition: transform 0.3s ease;
             transform: translateX(0);
+            left: 0;
+            top: 0;
         }
 
         .sidebar.collapsed {
@@ -472,7 +474,7 @@
             transition: left 0.3s ease;
         }
 
-        .sidebar.collapsed + .main-content .sidebar-toggle {
+        .sidebar-toggle.moved {
             left: 60px;
         }
 
@@ -485,7 +487,7 @@
             transition: margin-left 0.3s ease;
         }
 
-        .sidebar.collapsed + .main-content {
+        .main-content.sidebar-collapsed {
             margin-left: 40px;
         }
 
@@ -1025,6 +1027,8 @@
             console.log('Toggle sidebar clicked!'); // Debug log
             const sidebar = document.getElementById('sidebar');
             const overlay = document.querySelector('.overlay');
+            const mainContent = document.querySelector('.main-content');
+            const toggleButton = document.querySelector('.sidebar-toggle');
             
             console.log('Current sidebar classes:', sidebar.className); // Debug log
             
@@ -1036,6 +1040,15 @@
             } else {
                 // Desktop behavior - collapse/expand
                 sidebar.classList.toggle('collapsed');
+                
+                // Also toggle main content and button classes for smoother animation
+                if (mainContent) {
+                    mainContent.classList.toggle('sidebar-collapsed');
+                }
+                if (toggleButton) {
+                    toggleButton.classList.toggle('moved');
+                }
+                
                 console.log('Desktop mode - toggled collapsed class'); // Debug log
             }
             
