@@ -388,6 +388,7 @@
             </button>
         </div>
 
+        
     </nav>
 
     <!-- Main Content -->
@@ -447,7 +448,7 @@
 
             <div class="dashboard-card">
                 <h3>📈 Collection Growth Over Time</h3>
-                <canvas id="growthChart" width="400" height="200" style="max-width: 100%;"></canvas>
+                <canvas id="growthChart" style="width: 100%; height: 300px; max-width: 100%;"></canvas>
             </div>
             
             <div class="dashboard-card">
@@ -518,14 +519,14 @@
 
         // Sample data for the chart (simulating growth over time)
         const chartData = [
-            { month: 'Jan', wanted: 5, owned: 3 },
-            { month: 'Feb', wanted: 6, owned: 4 },
-            { month: 'Mar', wanted: 7, owned: 4 },
-            { month: 'Apr', wanted: 8, owned: 5 },
-            { month: 'May', wanted: 9, owned: 5 },
-            { month: 'Jun', wanted: 10, owned: 6 },
-            { month: 'Jul', wanted: 9, owned: 7 },
-            { month: 'Aug', wanted: 8, owned: 7 }
+            { month: 'Jul 15', wanted: 5, owned: 3 },
+            { month: 'Aug 1', wanted: 6, owned: 4 },
+            { month: 'Aug 5', wanted: 7, owned: 4 },
+            { month: 'Aug 10', wanted: 8, owned: 5 },
+            { month: 'Aug 12', wanted: 9, owned: 5 },
+            { month: 'Aug 15', wanted: 10, owned: 6 },
+            { month: 'Aug 17', wanted: 9, owned: 7 },
+            { month: 'Aug 19', wanted: 8, owned: 7 }
         ];
 
         // Toggle sidebar
@@ -627,13 +628,20 @@
             const canvas = document.getElementById('growthChart');
             const ctx = canvas.getContext('2d');
             
-            // Set canvas size
-            canvas.width = canvas.offsetWidth;
-            canvas.height = 200;
+            // Get the actual display size
+            const rect = canvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
             
-            const width = canvas.width;
-            const height = canvas.height;
-            const padding = 40;
+            // Set the internal size to match the display size
+            canvas.width = rect.width * dpr;
+            canvas.height = 300 * dpr;
+            
+            // Scale the context to match device pixel ratio
+            ctx.scale(dpr, dpr);
+            
+            const width = rect.width;
+            const height = 300;
+            const padding = 50;
             const chartWidth = width - padding * 2;
             const chartHeight = height - padding * 2;
             
@@ -674,7 +682,7 @@
                 ownedPoints.push({ x, y: ownedY });
             });
             
-            // Draw "Want to Read" line
+            // Draw "Want to Buy" line
             ctx.strokeStyle = '#007bff';
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -722,7 +730,7 @@
             
             chartData.forEach((data, index) => {
                 const x = padding + (chartWidth / (chartData.length - 1)) * index;
-                ctx.fillText(data.month, x, height - 10);
+                ctx.fillText(data.month, x, height - 15);
             });
             
             // Draw y-axis labels
@@ -736,14 +744,14 @@
             // Draw legend
             ctx.textAlign = 'left';
             ctx.fillStyle = '#007bff';
-            ctx.fillRect(padding, 10, 15, 3);
+            ctx.fillRect(padding, 15, 15, 3);
             ctx.fillStyle = '#6c757d';
-            ctx.fillText('Want to Read', padding + 20, 18);
+            ctx.fillText('Want to Buy', padding + 20, 23);
             
             ctx.fillStyle = '#28a745';
-            ctx.fillRect(padding + 120, 10, 15, 3);
+            ctx.fillRect(padding + 120, 15, 15, 3);
             ctx.fillStyle = '#6c757d';
-            ctx.fillText('Owned', padding + 140, 18);
+            ctx.fillText('Owned', padding + 140, 28);
         }
 
         // Search functionality
